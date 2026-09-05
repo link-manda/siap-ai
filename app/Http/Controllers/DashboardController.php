@@ -14,12 +14,16 @@ class DashboardController extends Controller
     public function index()
     {
         $totalArchives = $this->archiveRepository->countTotal();
-
-        // Next: Add more aggregations for charts
+        $categoryStats = $this->archiveRepository->getCategoryStats();
+        $classificationStats = $this->archiveRepository->getClassificationStats();
+        $monthlyStats = $this->archiveRepository->getMonthlyStats();
 
         return view('pages.dashboard.ecommerce', [
-            'title' => 'SIAP-AI Dashboard', // Will rename to SIAP-AI Dashboard in frontend phase
-            'totalArchives' => $totalArchives
+            'title' => 'SIAP-AI Dashboard',
+            'totalArchives' => $totalArchives,
+            'categoryStats' => $categoryStats,
+            'classificationStats' => $classificationStats,
+            'monthlyStats' => $monthlyStats,
         ]);
     }
 }

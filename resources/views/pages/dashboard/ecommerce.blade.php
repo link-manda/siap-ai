@@ -18,8 +18,71 @@
                     </div>
                 </div>
             </div>
-            <!-- Future cards here -->
+            
+            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-theme-sm dark:border-gray-800 dark:bg-gray-dark md:col-span-2">
+                 <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Tren Unggahan Bulanan</h4>
+                 <div id="monthlyChart" class="-ml-4 -mb-4"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-span-12 md:col-span-6">
+        <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-theme-sm dark:border-gray-800 dark:bg-gray-dark h-full">
+            <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-6 text-center">Komposisi Kategori</h4>
+            <div id="categoryChart" class="flex justify-center"></div>
+        </div>
+    </div>
+    
+    <div class="col-span-12 md:col-span-6">
+        <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-theme-sm dark:border-gray-800 dark:bg-gray-dark h-full">
+            <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-6 text-center">Klasifikasi Kerahasiaan</h4>
+            <div id="classificationChart" class="flex justify-center"></div>
         </div>
     </div>
   </div>
+
+  <script type="module">
+    document.addEventListener("DOMContentLoaded", function () {
+      if (typeof ApexCharts !== 'undefined') {
+        // Monthly Chart
+        const monthlyData = @json($monthlyStats);
+        if (monthlyData && monthlyData.series) {
+            new ApexCharts(document.getElementById("monthlyChart"), {
+                series: [{ name: 'Arsip Diunggah', data: monthlyData.series }],
+                chart: { type: 'bar', height: 120, toolbar: { show: false }, sparkline: { enabled: true } },
+                plotOptions: { bar: { borderRadius: 4, horizontal: false } },
+                dataLabels: { enabled: false },
+                xaxis: { categories: monthlyData.labels },
+                colors: ['#465FFF']
+            }).render();
+        }
+
+        // Category Chart
+        const catData = @json($categoryStats);
+        if (catData && catData.series && catData.series.length > 0) {
+            new ApexCharts(document.getElementById("categoryChart"), {
+                series: catData.series,
+                labels: catData.labels,
+                chart: { type: 'donut', height: 320 },
+                dataLabels: { enabled: true },
+                legend: { position: 'bottom' },
+                colors: ['#465FFF', '#0CB8E5', '#10B981', '#F59E0B', '#EF4444']
+            }).render();
+        }
+
+        // Classification Chart
+        const classData = @json($classificationStats);
+        if (classData && classData.series && classData.series.length > 0) {
+            new ApexCharts(document.getElementById("classificationChart"), {
+                series: classData.series,
+                labels: classData.labels,
+                chart: { type: 'pie', height: 320 },
+                dataLabels: { enabled: true },
+                legend: { position: 'bottom' },
+                colors: ['#10B981', '#3B82F6', '#F59E0B', '#EF4444']
+            }).render();
+        }
+      }
+    });
+  </script>
 @endsection

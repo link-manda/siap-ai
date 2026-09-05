@@ -18,4 +18,12 @@ interface ArchiveRepositoryInterface
     public function delete(int $id): bool;
     
     public function countTotal(): int;
+    
+    public function getCategoryStats(): array;
+    
+    public function getClassificationStats(): array;
+    
+    public function getMonthlyStats(): array;
+    
+    public function getAllForExport(array $filters = []): \Illuminate\Support\Collection;
 }
