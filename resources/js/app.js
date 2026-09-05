@@ -19,8 +19,10 @@ window.FullCalendar = Calendar;
 
 import mammoth from 'mammoth/mammoth.browser.js';
 import * as XLSX from 'xlsx';
+import DOMPurify from 'dompurify';
 window.mammoth = mammoth;
 window.XLSX = XLSX;
+window.DOMPurify = DOMPurify;
 
 Alpine.start();
 

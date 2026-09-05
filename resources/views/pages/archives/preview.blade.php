@@ -43,8 +43,8 @@
 @push('scripts')
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const fileType = "{{ strtolower($archive->file_type) }}";
-        const streamUrl = "{{ route('archives.stream', $archive->id) }}";
+        const fileType = @json(strtolower($archive->file_type));
+        const streamUrl = @json(route('archives.stream', $archive->id));
         const target = document.getElementById("render-target");
         const loading = document.getElementById("loading-spinner");
 
@@ -52,7 +52,7 @@
             // Native render for PDF & Images
             let element = '';
             if(fileType === 'pdf') {
-                element = `<iframe src="${streamUrl}" class="w-full h-full border-0"></iframe>`;
+                element = `<iframe src="${streamUrl}" sandbox="allow-scripts" class="w-full h-full border-0"></iframe>`;
             } else {
                 element = `<img src="${streamUrl}" class="max-w-full object-contain" />`;
             }
@@ -70,10 +70,11 @@
                     if (['docx', 'doc'].includes(fileType)) {
                         window.mammoth.convertToHtml({arrayBuffer: buffer})
                             .then(function(result) {
-                                target.innerHTML = `<div class="text-left w-full max-w-4xl prose">${result.value}</div>`;
+                                const cleanHtml = window.DOMPurify.sanitize(result.value);
+                                target.innerHTML = `<div class="text-left w-full max-w-4xl prose">${cleanHtml}</div>`;
                             })
                             .catch(function(err) {
-                                target.innerHTML = `<div class="text-red-500">Error memuat dokumen Word: ${err.message}</div>`;
+                                target.textContent = 'Error memuat dokumen Word: ' + err.message;
                             });
                     } else if (['xlsx', 'xls'].includes(fileType)) {
                         const workbook = window.XLSX.read(buffer, {type: 'array'});
@@ -84,14 +85,15 @@
                         let styledHtml = htmlstr.replace('<table', '<table class="w-full table-auto border-collapse border border-gray-300"');
                         styledHtml = styledHtml.replace(/<td/g, '<td class="border border-gray-300 px-4 py-2"');
                         
-                        target.innerHTML = `<div class="overflow-x-auto w-full">${styledHtml}</div>`;
+                        const cleanExcelHtml = window.DOMPurify.sanitize(styledHtml);
+                        target.innerHTML = `<div class="overflow-x-auto w-full">${cleanExcelHtml}</div>`;
                     }
                 })
                 .catch(err => {
-                    target.innerHTML = `<div class="text-red-500">Error mengambil dokumen: ${err.message}</div>`;
+                    target.textContent = 'Error mengambil dokumen: ' + err.message;
                 });
         } else {
-            target.innerHTML = `<div class="text-gray-500 flex items-center justify-center w-full h-full">Pratinjau tidak didukung untuk format ini.</div>`;
+            target.textContent = 'Pratinjau tidak didukung untuk format ini.';
         }
     });
 </script>

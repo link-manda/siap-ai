@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Interfaces\ArchiveRepositoryInterface;
+use App\Models\Archive;
 use App\Models\ArchiveLog;
 use App\Models\Category;
 use App\Models\Classification;
@@ -14,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 
 class ArchiveController extends Controller
 {
@@ -46,10 +48,14 @@ class ArchiveController extends Controller
 
     public function create()
     {
+        $classifications = Auth::user()->role === 'Pimpinan'
+            ? Classification::all()
+            : Classification::where('level', '<=', 3)->get();
+
         return view('pages.form.form-elements', [
             'title' => 'Upload Arsip Terintegrasi AI',
             'categories' => Category::all(),
-            'classifications' => Classification::all(),
+            'classifications' => $classifications,
         ]);
     }
 
@@ -88,8 +94,9 @@ class ArchiveController extends Controller
                     if (! str_starts_with($value, 'private/archives/') || str_contains($value, '..')) {
                         $fail('File path tidak valid.');
                     }
-                    if (! Storage::exists($value)) {
-                        $fail('File tidak ditemukan di server.');
+                    $fullPath = Storage::path($value);
+                    if (! Storage::exists($value) || ! is_file($fullPath)) {
+                        $fail('File fisik tidak valid atau berupa direktori.');
                     }
                 },
             ],
@@ -129,8 +136,8 @@ class ArchiveController extends Controller
 
         $filePath = Storage::path($archive->file_path);
 
-        // Apply Security Watermark for Level 4 if supported (PDF/images)
-        if ($archive->classification->level === 4) {
+        // Fail-safe Watermarking for Level 4
+        if ($archive->classification?->level === 4) {
             $ext = strtolower($archive->file_type);
             if (in_array($ext, ['pdf', 'jpg', 'jpeg', 'png'])) {
                 $watermarkedPath = $this->watermarkService->applyWatermark(
@@ -139,14 +146,25 @@ class ArchiveController extends Controller
                     request()->ip()
                 );
 
-                if ($watermarkedPath !== $filePath) {
-                    return response()->file($watermarkedPath, [
-                        'Content-Type' => mime_content_type($watermarkedPath),
-                        'Content-Disposition' => 'inline; filename="'.$archive->title.'.'.$archive->file_type.'"',
-                    ])->deleteFileAfterSend(true);
-                } else {
-                    Log::warning("Watermark failed or bypassed for archive ID: {$archive->id} by user ".Auth::user()->email);
+                if ($watermarkedPath === $filePath) {
+                    Log::critical("Security Alert: Watermarking failed for Level 4 Archive ID: {$archive->id}");
+                    abort(500, 'Dokumen keamanan tinggi tidak dapat dialirkan karena kegagalan sistem proteksi.');
                 }
+
+                $disposition = HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_INLINE, $archive->title.'.'.$archive->file_type);
+
+                return response()->file($watermarkedPath, [
+                    'Content-Type' => mime_content_type($watermarkedPath),
+                    'Content-Disposition' => $disposition,
+                    'X-Content-Type-Options' => 'nosniff',
+                    'Content-Security-Policy' => "default-src 'none'; frame-ancestors 'self';",
+                    'Cache-Control' => 'private, no-cache, no-store, must-revalidate',
+                    'Pragma' => 'no-cache',
+                    'Cross-Origin-Resource-Policy' => 'same-origin',
+                ])->deleteFileAfterSend(true);
+            } else {
+                Log::critical("Security Alert: Unsupported format {$ext} for Level 4 Archive ID: {$archive->id}");
+                abort(500, 'Dokumen keamanan tinggi dengan format ini belum didukung untuk dialirkan dengan proteksi.');
             }
         }
 
@@ -154,9 +172,16 @@ class ArchiveController extends Controller
             abort(404, 'File tidak ditemukan di server.');
         }
 
+        $disposition = HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_INLINE, $archive->title.'.'.$archive->file_type);
+
         return response()->file($filePath, [
             'Content-Type' => mime_content_type($filePath),
-            'Content-Disposition' => 'inline; filename="'.$archive->title.'.'.$archive->file_type.'"',
+            'Content-Disposition' => $disposition,
+            'X-Content-Type-Options' => 'nosniff',
+            'Content-Security-Policy' => "default-src 'none'; frame-ancestors 'self';",
+            'Cache-Control' => 'private, no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Cross-Origin-Resource-Policy' => 'same-origin',
         ]);
     }
 
@@ -170,10 +195,6 @@ class ArchiveController extends Controller
 
         $this->authorize('view', $archive);
 
-        // Observer will catch this download via a custom log if we update it,
-        // but for now we manually log or let a dedicated route handle it.
-        // Actually, we should manually log the download action since Observer only handles Eloquent events.
-
         ArchiveLog::create([
             'archive_id' => $archive->id,
             'user_id' => Auth::id(),
@@ -183,7 +204,7 @@ class ArchiveController extends Controller
         ]);
 
         // Apply Security Watermark for Level 4
-        if ($archive->classification->level === 4) {
+        if ($archive->classification?->level === 4) {
             $ext = strtolower($archive->file_type);
             if (in_array($ext, ['pdf', 'jpg', 'jpeg', 'png'])) {
                 $watermarkedPath = $this->watermarkService->applyWatermark(
@@ -192,17 +213,20 @@ class ArchiveController extends Controller
                     request()->ip()
                 );
 
-                // If watermark was applied successfully and returned a temp file
-                if ($watermarkedPath !== Storage::path($archive->file_path)) {
-                    return response()->download($watermarkedPath, $archive->title.'.'.$archive->file_type)
-                        ->deleteFileAfterSend(true);
-                } else {
-                    Log::warning("Watermark failed or bypassed for archive ID: {$archive->id} by user ".Auth::user()->email);
-                    session()->flash('warning', 'Gagal menerapkan watermark keamanan. File asli diunduh.');
+                if ($watermarkedPath === Storage::path($archive->file_path)) {
+                    Log::critical("Security Alert: Watermarking failed for Level 4 Archive ID: {$archive->id} on download");
+                    abort(500, 'Dokumen keamanan tinggi tidak dapat diunduh karena kegagalan sistem proteksi.');
                 }
+
+                $disposition = HeaderUtils::makeDisposition(HeaderUtils::DISPOSITION_ATTACHMENT, $archive->title.'.'.$archive->file_type);
+
+                return response()->file($watermarkedPath, [
+                    'Content-Type' => mime_content_type($watermarkedPath),
+                    'Content-Disposition' => $disposition,
+                ])->deleteFileAfterSend(true);
             } else {
-                // If it's docx/xlsx, flash a warning but still download original
-                session()->flash('warning', 'File asli diunduh. Format ini tidak mendukung watermark keamanan otomatis.');
+                Log::critical("Security Alert: Unsupported format {$ext} for Level 4 Archive ID: {$archive->id}");
+                abort(500, 'Dokumen keamanan tinggi dengan format ini belum didukung untuk diunduh dengan proteksi.');
             }
         }
 
@@ -239,6 +263,7 @@ class ArchiveController extends Controller
 
     public function exportExcel(Request $request, ReportExportService $exportService)
     {
+        $this->authorize('viewAny', Archive::class);
         $filters = [
             'category_id' => $request->get('category_id'),
             'classification_id' => $request->get('classification_id'),
@@ -254,6 +279,7 @@ class ArchiveController extends Controller
 
     public function exportPdf(Request $request, ReportExportService $exportService)
     {
+        $this->authorize('viewAny', Archive::class);
         $filters = [
             'category_id' => $request->get('category_id'),
             'classification_id' => $request->get('classification_id'),

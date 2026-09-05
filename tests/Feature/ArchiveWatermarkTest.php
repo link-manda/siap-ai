@@ -69,9 +69,8 @@ it('downloads pdf level 4 via watermark service', function () {
     expect($response->headers->get('content-disposition'))->toContain('attachment');
 });
 
-it('flashes warning and downloads original for docx level 4', function () {
+it('aborts and refuses to download original for docx level 4', function () {
     $response = $this->actingAs($this->pimpinanUser)->get(route('archives.download', $this->docxArchive->id));
 
-    $response->assertStatus(200);
-    $response->assertSessionHas('warning', 'File asli diunduh. Format ini tidak mendukung watermark keamanan otomatis.');
+    $response->assertStatus(500);
 });

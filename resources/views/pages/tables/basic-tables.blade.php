@@ -35,7 +35,10 @@
                 <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Level Kerahasiaan</label>
                 <select name="classification_id" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-gray-800 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white">
                     <option value="">Semua Level</option>
-                    @foreach(\App\Models\Classification::all() as $classification)
+                    @php
+                        $userClassifications = Auth::user()->role === 'Pimpinan' ? \App\Models\Classification::all() : \App\Models\Classification::where('level', '<=', 3)->get();
+                    @endphp
+                    @foreach($userClassifications as $classification)
                         <option value="{{ $classification->id }}" {{ request('classification_id') == $classification->id ? 'selected' : '' }}>{{ $classification->name }}</option>
                     @endforeach
                 </select>

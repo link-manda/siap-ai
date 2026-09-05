@@ -4,6 +4,7 @@ use App\Models\Archive;
 use App\Models\Category;
 use App\Models\Classification;
 use App\Models\User;
+use App\Services\WatermarkService;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
@@ -73,6 +74,14 @@ it('allows pimpinan to download sangat rahasia documents', function () {
     // We need an actual file to prevent 404 from Storage::download
     Storage::disk('local')->put('private/archives/topsecret.pdf', 'dummy content');
 
+    // Mock WatermarkService to simulate success
+    $mockWatermark = Mockery::mock(WatermarkService::class);
+    $mockWatermark->shouldReceive('applyWatermark')->andReturn('/tmp/watermarked.pdf');
+    $this->app->instance(WatermarkService::class, $mockWatermark);
+
+    // Create a dummy watermarked file
+    file_put_contents('/tmp/watermarked.pdf', 'watermarked');
+
     $response = $this->actingAs($this->pimpinanUser)->get(route('archives.download', $this->secretArchive->id));
 
     $response->assertStatus(200);
@@ -99,6 +108,12 @@ it('forbids admin from streaming or previewing sangat rahasia documents', functi
 
 it('allows pimpinan to stream and preview sangat rahasia documents', function () {
     Storage::disk('local')->put('private/archives/topsecret.pdf', 'dummy content');
+
+    // Mock WatermarkService to simulate success
+    $mockWatermark = Mockery::mock(WatermarkService::class);
+    $mockWatermark->shouldReceive('applyWatermark')->andReturn('/tmp/watermarked2.pdf');
+    $this->app->instance(WatermarkService::class, $mockWatermark);
+    file_put_contents('/tmp/watermarked2.pdf', 'watermarked');
 
     $previewResponse = $this->actingAs($this->pimpinanUser)->get(route('archives.preview', $this->secretArchive->id));
     $previewResponse->assertStatus(200);
