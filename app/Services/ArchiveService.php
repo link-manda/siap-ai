@@ -21,13 +21,14 @@ class ArchiveService
     {
         // Save file securely to private storage
         $path = $file->store('private/archives');
-        
+
         $fileName = $file->getClientOriginalName();
         $fileType = $file->getClientOriginalExtension();
+        $fileSize = $file->getSize();
 
-        // If no text is provided, in a real app we would run OCR here. 
+        // If no text is provided, in a real app we would run OCR here.
         // For now, we simulate OCR text if empty.
-        $textToAnalyze = $extractedText ?: "Simulasi isi dokumen: " . $fileName;
+        $textToAnalyze = $extractedText ?: 'Simulasi isi dokumen: '.$fileName;
 
         // Call AI Service
         $aiResult = $this->aiClassificationService->classifyDocument($textToAnalyze);
@@ -36,6 +37,7 @@ class ArchiveService
             'title' => pathinfo($fileName, PATHINFO_FILENAME),
             'file_path' => $path,
             'file_type' => $fileType,
+            'file_size' => $fileSize,
             'extracted_text' => $textToAnalyze,
             'category_id' => $aiResult['category_id'],
             'classification_id' => $aiResult['classification_id'],
@@ -51,6 +53,17 @@ class ArchiveService
     public function storeArchive(array $validatedData, int $userId): Archive
     {
         $validatedData['uploaded_by'] = $userId;
+
         return $this->archiveRepository->create($validatedData);
+    }
+
+    public function getDashboardStats(): array
+    {
+        return [
+            'totalArchives' => $this->archiveRepository->countTotal(),
+            'categoryStats' => $this->archiveRepository->getCategoryStats(),
+            'classificationStats' => $this->archiveRepository->getClassificationStats(),
+            'monthlyStats' => $this->archiveRepository->getMonthlyStats(),
+        ];
     }
 }

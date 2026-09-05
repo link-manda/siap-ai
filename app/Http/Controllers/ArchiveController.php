@@ -12,6 +12,7 @@ use App\Services\WatermarkService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class ArchiveController extends Controller
@@ -28,6 +29,7 @@ class ArchiveController extends Controller
     {
         $filters = [
             'category_id' => $request->get('category_id'),
+            'classification_id' => $request->get('classification_id'),
             'start_date' => $request->get('start_date'),
             'end_date' => $request->get('end_date'),
         ];
@@ -78,8 +80,21 @@ class ArchiveController extends Controller
             'title' => ['required', 'string', 'max:255'],
             'document_number' => ['nullable', 'string', 'max:255'],
             'document_date' => ['nullable', 'date'],
-            'file_path' => ['required', 'string'],
+            'retention_date' => ['nullable', 'date'],
+            'file_path' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if (! str_starts_with($value, 'private/archives/') || str_contains($value, '..')) {
+                        $fail('File path tidak valid.');
+                    }
+                    if (! Storage::exists($value)) {
+                        $fail('File tidak ditemukan di server.');
+                    }
+                },
+            ],
             'file_type' => ['required', 'string'],
+            'file_size' => ['nullable', 'numeric'],
             'category_id' => ['required', 'exists:categories,id'],
             'classification_id' => ['required', 'exists:classifications,id'],
             'summary' => ['nullable', 'string'],
@@ -129,6 +144,9 @@ class ArchiveController extends Controller
                 if ($watermarkedPath !== Storage::path($archive->file_path)) {
                     return response()->download($watermarkedPath, $archive->title.'.'.$archive->file_type)
                         ->deleteFileAfterSend(true);
+                } else {
+                    Log::warning("Watermark failed or bypassed for archive ID: {$archive->id} by user ".Auth::user()->email);
+                    session()->flash('warning', 'Gagal menerapkan watermark keamanan. File asli diunduh.');
                 }
             } else {
                 // If it's docx/xlsx, flash a warning but still download original
@@ -158,11 +176,13 @@ class ArchiveController extends Controller
     {
         $filters = [
             'category_id' => $request->get('category_id'),
+            'classification_id' => $request->get('classification_id'),
             'start_date' => $request->get('start_date'),
             'end_date' => $request->get('end_date'),
         ];
 
         $archives = $this->archiveRepository->getAllForExport($filters);
+        $this->logBulkDownload($archives, $request);
 
         return $exportService->exportToExcel($archives);
     }
@@ -171,12 +191,38 @@ class ArchiveController extends Controller
     {
         $filters = [
             'category_id' => $request->get('category_id'),
+            'classification_id' => $request->get('classification_id'),
             'start_date' => $request->get('start_date'),
             'end_date' => $request->get('end_date'),
         ];
 
         $archives = $this->archiveRepository->getAllForExport($filters);
+        $this->logBulkDownload($archives, $request);
 
         return $exportService->exportToPdf($archives);
+    }
+
+    protected function logBulkDownload($archives, Request $request)
+    {
+        $userId = Auth::id();
+        $ip = $request->ip();
+        $ua = $request->userAgent();
+
+        $logs = [];
+        $now = now();
+        foreach ($archives as $archive) {
+            $logs[] = [
+                'archive_id' => $archive->id,
+                'user_id' => $userId,
+                'action' => 'DOWNLOAD',
+                'ip_address' => $ip,
+                'user_agent' => $ua,
+                'created_at' => $now,
+            ];
+        }
+
+        if (! empty($logs)) {
+            ArchiveLog::insert($logs);
+        }
     }
 }

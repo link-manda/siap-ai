@@ -20,6 +20,42 @@
         </div>
     </div>
     
+    <div class="mb-6 rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+        <form method="GET" action="{{ route('archives.index') }}" class="flex flex-col sm:flex-row gap-4 items-end">
+            <div class="w-full sm:w-1/4">
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Kategori</label>
+                <select name="category_id" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-gray-800 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white">
+                    <option value="">Semua Kategori</option>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="w-full sm:w-1/4">
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Level Kerahasiaan</label>
+                <select name="classification_id" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-gray-800 outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:text-white">
+                    <option value="">Semua Level</option>
+                    @foreach(\App\Models\Classification::all() as $classification)
+                        <option value="{{ $classification->id }}" {{ request('classification_id') == $classification->id ? 'selected' : '' }}>{{ $classification->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="w-full sm:w-1/4">
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Dari Tanggal</label>
+                <input type="date" name="start_date" value="{{ request('start_date') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-gray-800 outline-none focus:border-brand-500 dark:border-gray-700 dark:text-white">
+            </div>
+            <div class="w-full sm:w-1/4">
+                <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Sampai Tanggal</label>
+                <input type="date" name="end_date" value="{{ request('end_date') }}" class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-gray-800 outline-none focus:border-brand-500 dark:border-gray-700 dark:text-white">
+            </div>
+            <div class="w-full sm:w-auto">
+                <button type="submit" class="w-full sm:w-auto rounded-md bg-gray-800 py-2.5 px-6 font-medium text-white hover:bg-gray-700 dark:bg-white dark:text-gray-800 dark:hover:bg-gray-100">
+                    Filter
+                </button>
+            </div>
+        </form>
+    </div>
+    
     <div class="space-y-6">
         <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
             <div class="max-w-full overflow-x-auto custom-scrollbar">
@@ -45,7 +81,7 @@
                             </td>
                             <td class="px-5 py-4 sm:px-6">
                                 <p class="text-theme-xs inline-block rounded-full px-2 py-0.5 font-medium bg-blue-50 text-blue-700 dark:bg-blue-500/15 dark:text-blue-500">
-                                    {{ $archive->classification->name ?? '-' }}
+                                    {{ $archive->classification?->name ?? '-' }}
                                 </p>
                             </td>
                             <td class="px-5 py-4 sm:px-6">

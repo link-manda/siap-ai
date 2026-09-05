@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Category;
+use App\Models\Classification;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -26,13 +28,13 @@ class DatabaseSeeder extends Seeder
         // Categories
         $categories = ['Surat Keputusan', 'Surat Masuk', 'Surat Keluar', 'Rekam Medis', 'Laporan Keuangan', 'Data Pegawai'];
         foreach ($categories as $category) {
-            \App\Models\Category::create(['name' => $category]);
+            Category::create(['name' => $category]);
         }
 
         // Classifications
-        \App\Models\Classification::create(['name' => 'Biasa', 'level' => 1]);
-        \App\Models\Classification::create(['name' => 'Penting', 'level' => 2]);
-        \App\Models\Classification::create(['name' => 'Rahasia', 'level' => 3]);
-        \App\Models\Classification::create(['name' => 'Sangat Rahasia', 'level' => 4]);
+        Classification::create(['name' => 'Biasa', 'level' => 1]);
+        Classification::create(['name' => 'Terbatas', 'level' => 2]);
+        Classification::create(['name' => 'Rahasia', 'level' => 3]);
+        Classification::create(['name' => 'Sangat Rahasia', 'level' => 4]);
     }
 }

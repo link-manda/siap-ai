@@ -3,9 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Archive extends Model
 {
@@ -15,7 +15,9 @@ class Archive extends Model
         'document_number',
         'title',
         'document_date',
+        'retention_date',
         'file_path',
+        'file_size',
         'file_type',
         'category_id',
         'classification_id',
@@ -30,6 +32,7 @@ class Archive extends Model
     {
         return [
             'document_date' => 'date',
+            'retention_date' => 'date',
             'ai_confidence_score' => 'decimal:2',
         ];
     }
