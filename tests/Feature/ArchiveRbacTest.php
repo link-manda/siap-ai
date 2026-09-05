@@ -4,15 +4,14 @@ use App\Models\Archive;
 use App\Models\Category;
 use App\Models\Classification;
 use App\Models\User;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     Storage::fake('local');
-    
+
     // Create necessary seed data
     $this->category = Category::create(['name' => 'Test Category']);
-    
+
     // Create classifications
     $this->classBiasa = Classification::create(['name' => 'Biasa', 'level' => 1]);
     $this->classRahasia = Classification::create(['name' => 'Rahasia', 'level' => 3]);
@@ -47,7 +46,7 @@ beforeEach(function () {
 
 it('hides sangat rahasia documents from admin in datatable', function () {
     $response = $this->actingAs($this->adminUser)->get(route('archives.index'));
-    
+
     $response->assertStatus(200);
     // Should see normal
     $response->assertSee('Normal Doc');
@@ -57,7 +56,7 @@ it('hides sangat rahasia documents from admin in datatable', function () {
 
 it('shows sangat rahasia documents to pimpinan in datatable', function () {
     $response = $this->actingAs($this->pimpinanUser)->get(route('archives.index'));
-    
+
     $response->assertStatus(200);
     // Should see both
     $response->assertSee('Normal Doc');
@@ -66,26 +65,44 @@ it('shows sangat rahasia documents to pimpinan in datatable', function () {
 
 it('forbids admin from downloading sangat rahasia documents', function () {
     $response = $this->actingAs($this->adminUser)->get(route('archives.download', $this->secretArchive->id));
-    
+
     $response->assertStatus(403);
 });
 
 it('allows pimpinan to download sangat rahasia documents', function () {
     // We need an actual file to prevent 404 from Storage::download
     Storage::disk('local')->put('private/archives/topsecret.pdf', 'dummy content');
-    
+
     $response = $this->actingAs($this->pimpinanUser)->get(route('archives.download', $this->secretArchive->id));
-    
+
     $response->assertStatus(200);
 });
 
 it('forbids admin from deleting sangat rahasia documents', function () {
     $response = $this->actingAs($this->adminUser)->delete(route('archives.destroy', $this->secretArchive->id));
-    
+
     $response->assertStatus(403);
-    
+
     $this->assertDatabaseHas('archives', [
         'id' => $this->secretArchive->id,
         'deleted_at' => null,
     ]);
+});
+
+it('forbids admin from streaming or previewing sangat rahasia documents', function () {
+    $previewResponse = $this->actingAs($this->adminUser)->get(route('archives.preview', $this->secretArchive->id));
+    $previewResponse->assertStatus(403);
+
+    $streamResponse = $this->actingAs($this->adminUser)->get(route('archives.stream', $this->secretArchive->id));
+    $streamResponse->assertStatus(403);
+});
+
+it('allows pimpinan to stream and preview sangat rahasia documents', function () {
+    Storage::disk('local')->put('private/archives/topsecret.pdf', 'dummy content');
+
+    $previewResponse = $this->actingAs($this->pimpinanUser)->get(route('archives.preview', $this->secretArchive->id));
+    $previewResponse->assertStatus(200);
+
+    $streamResponse = $this->actingAs($this->pimpinanUser)->get(route('archives.stream', $this->secretArchive->id));
+    $streamResponse->assertStatus(200);
 });

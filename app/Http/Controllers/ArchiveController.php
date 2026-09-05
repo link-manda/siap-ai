@@ -59,7 +59,7 @@ class ArchiveController extends Controller
         set_time_limit(120);
 
         $request->validate([
-            'document' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'document' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx', 'max:10240'],
             'extracted_text' => ['nullable', 'string'],
         ]);
 
@@ -106,6 +106,58 @@ class ArchiveController extends Controller
         $this->archiveService->storeArchive($validated, Auth::id());
 
         return redirect()->route('archives.index')->with('success', 'Arsip berhasil disimpan!');
+    }
+
+    public function stream($id)
+    {
+        $archive = $this->archiveRepository->findById($id);
+
+        if (! $archive) {
+            abort(404);
+        }
+
+        $this->authorize('view', $archive);
+
+        // Record Audit Log for VIEW
+        ArchiveLog::create([
+            'archive_id' => $archive->id,
+            'user_id' => Auth::id(),
+            'action' => 'VIEW',
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+        ]);
+
+        $filePath = Storage::path($archive->file_path);
+
+        // Apply Security Watermark for Level 4 if supported (PDF/images)
+        if ($archive->classification->level === 4) {
+            $ext = strtolower($archive->file_type);
+            if (in_array($ext, ['pdf', 'jpg', 'jpeg', 'png'])) {
+                $watermarkedPath = $this->watermarkService->applyWatermark(
+                    $archive,
+                    Auth::user(),
+                    request()->ip()
+                );
+
+                if ($watermarkedPath !== $filePath) {
+                    return response()->file($watermarkedPath, [
+                        'Content-Type' => mime_content_type($watermarkedPath),
+                        'Content-Disposition' => 'inline; filename="'.$archive->title.'.'.$archive->file_type.'"',
+                    ])->deleteFileAfterSend(true);
+                } else {
+                    Log::warning("Watermark failed or bypassed for archive ID: {$archive->id} by user ".Auth::user()->email);
+                }
+            }
+        }
+
+        if (! Storage::exists($archive->file_path)) {
+            abort(404, 'File tidak ditemukan di server.');
+        }
+
+        return response()->file($filePath, [
+            'Content-Type' => mime_content_type($filePath),
+            'Content-Disposition' => 'inline; filename="'.$archive->title.'.'.$archive->file_type.'"',
+        ]);
     }
 
     public function download($id)
@@ -155,6 +207,19 @@ class ArchiveController extends Controller
         }
 
         return Storage::download($archive->file_path, $archive->title.'.'.$archive->file_type);
+    }
+
+    public function preview($id)
+    {
+        $archive = $this->archiveRepository->findById($id);
+
+        if (! $archive) {
+            abort(404);
+        }
+
+        $this->authorize('view', $archive);
+
+        return view('pages.archives.preview', compact('archive'));
     }
 
     public function destroy($id)

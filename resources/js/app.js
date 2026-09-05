@@ -17,6 +17,11 @@ window.ApexCharts = ApexCharts;
 window.flatpickr = flatpickr;
 window.FullCalendar = Calendar;
 
+import mammoth from 'mammoth/mammoth.browser.js';
+import * as XLSX from 'xlsx';
+window.mammoth = mammoth;
+window.XLSX = XLSX;
+
 Alpine.start();
 
 // Initialize components on DOM ready

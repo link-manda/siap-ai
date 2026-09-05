@@ -27,6 +27,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/process-ai', [ArchiveController::class, 'processAi'])->name('process-ai');
         Route::post('/', [ArchiveController::class, 'store'])->name('store');
         Route::get('/{id}/download', [ArchiveController::class, 'download'])->name('download');
+        Route::get('/{id}/stream', [ArchiveController::class, 'stream'])->name('stream');
+        Route::get('/{id}/preview', [ArchiveController::class, 'preview'])->name('preview');
         Route::delete('/{id}', [ArchiveController::class, 'destroy'])->name('destroy');
     });
 

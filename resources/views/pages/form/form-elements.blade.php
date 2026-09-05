@@ -16,8 +16,8 @@
                 <div class="p-6">
                     <form id="ai-upload-form">
                         <div>
-                            <label class="mb-3 block text-sm font-medium text-gray-700 dark:text-gray-400">File Dokumen (PDF/JPG) <span class="text-error-500">*</span></label>
-                            <input type="file" id="document_file" accept=".pdf,.jpg,.jpeg,.png"
+                            <label class="mb-3 block text-sm font-medium text-gray-700 dark:text-gray-400">File Dokumen (PDF/Image/Word/Excel) <span class="text-error-500">*</span></label>
+                            <input type="file" id="document_file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
                                 class="w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2 text-sm text-gray-800 focus:border-brand-300 focus:outline-hidden dark:border-gray-700 dark:text-white/90" required />
                         </div>
                         <button type="submit" id="btn-process-ai" class="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-brand-500 py-2.5 px-4 font-medium text-white hover:bg-opacity-90">
