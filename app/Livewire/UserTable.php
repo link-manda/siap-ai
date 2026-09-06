@@ -28,16 +28,19 @@ class UserTable extends Component
     public function deleteUser(int $id): void
     {
         $user = User::findOrFail($id);
-        $this->authorize('delete', $user);
 
         if (Auth::id() === $user->id) {
             session()->flash('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+            $this->dispatch('toast-show', slots: ['text' => 'Anda tidak dapat menghapus akun Anda sendiri.', 'heading' => 'Kesalahan'], dataset: ['variant' => 'danger'], duration: 0);
 
             return;
         }
 
+        $this->authorize('delete', $user);
+
         $user->delete();
         session()->flash('success', 'Pengguna berhasil dihapus.');
+        $this->dispatch('toast-show', slots: ['text' => 'Pengguna berhasil dihapus.', 'heading' => 'Sukses'], dataset: ['variant' => 'success'], duration: 5000);
     }
 
     public function render()

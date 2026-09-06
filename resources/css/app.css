@@ -1366,3 +1366,28 @@ pre code,
   text-align: left !important;
   unicode-bidi: isolate;
 }
+
+/* SIAP-AI Centralized Toast Fixed Layer */
+ui-toast {
+  position: fixed !important;
+  top: 1.25rem !important;
+  right: 1.25rem !important;
+  bottom: auto !important;
+  left: auto !important;
+  z-index: 99999 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  pointer-events: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.75rem !important;
+  max-width: 24rem !important;
+  width: calc(100% - 2.5rem) !important;
+}
+
+ui-toast [data-flux-toast-dialog] {
+  pointer-events: auto !important;
+}

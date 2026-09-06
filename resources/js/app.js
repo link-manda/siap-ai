@@ -11,6 +11,26 @@ window.mammoth = mammoth;
 window.XLSX = XLSX;
 window.DOMPurify = DOMPurify;
 
+// Register Alpine Magic for Flux Appearance (Dark/Light mode)
+Alpine.magic('flux', () => ({
+    get appearance() {
+        return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+    },
+    set appearance(val) {
+        if (window.Flux && typeof window.Flux.applyAppearance === 'function') {
+            window.Flux.applyAppearance(val);
+        } else {
+            if (val === 'dark') {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('flux.appearance', 'dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('flux.appearance', 'light');
+            }
+        }
+    }
+}));
+
 Alpine.start();
 
 /**
@@ -20,6 +40,20 @@ class UiToast extends HTMLElement {
     connectedCallback() {
         this.template = this.querySelector('template');
         this.position = this.getAttribute('position') || 'top right';
+
+        // Listen on window for toast-show events (dispatched by Livewire or window.SiapToast)
+        this._handler = (e) => {
+            if (e && e.detail) {
+                this.showToast(e.detail);
+            }
+        };
+        window.addEventListener('toast-show', this._handler);
+    }
+
+    disconnectedCallback() {
+        if (this._handler) {
+            window.removeEventListener('toast-show', this._handler);
+        }
     }
 
     showToast(detail) {
@@ -33,7 +67,7 @@ class UiToast extends HTMLElement {
         const dialog = clone.querySelector('[data-flux-toast-dialog]');
         if (!dialog) return;
 
-        const rawVariant = detail?.dataset?.variant || 'info';
+        const rawVariant = detail?.dataset?.variant || detail?.variant || 'info';
         const variant = rawVariant === 'error' ? 'danger' : rawVariant;
         dialog.setAttribute('data-variant', variant);
 
@@ -41,14 +75,16 @@ class UiToast extends HTMLElement {
         const textSlot = dialog.querySelector('slot[name="text"]');
         const headingContainer = headingSlot?.parentElement;
 
-        if (detail?.slots?.heading && headingSlot) {
-            headingSlot.replaceWith(document.createTextNode(detail.slots.heading));
+        const headingVal = detail?.slots?.heading || detail?.heading;
+        if (headingVal && headingSlot) {
+            headingSlot.replaceWith(document.createTextNode(headingVal));
         } else if (headingContainer && headingSlot) {
             headingSlot.remove();
         }
 
-        if (detail?.slots?.text && textSlot) {
-            textSlot.replaceWith(document.createTextNode(detail.slots.text));
+        const textVal = detail?.slots?.text || detail?.text || detail?.message;
+        if (textVal && textSlot) {
+            textSlot.replaceWith(document.createTextNode(textVal));
         }
 
         // Close button dismiss handler
@@ -113,7 +149,7 @@ window.SiapToast = function (text, variant = 'info', heading = null, duration = 
     const finalDuration = duration !== null ? duration : (isError ? 0 : 5000);
     const finalHeading = heading || (variant === 'success' ? 'Sukses' : (isError ? 'Kesalahan' : (variant === 'warning' ? 'Perhatian' : 'Informasi')));
 
-    window.dispatchEvent(new CustomEvent('toast-show', {
+    const toastEvent = new CustomEvent('toast-show', {
         detail: {
             slots: {
                 text: text,
@@ -124,5 +160,8 @@ window.SiapToast = function (text, variant = 'info', heading = null, duration = 
             },
             duration: finalDuration
         }
-    }));
+    });
+
+    window.dispatchEvent(toastEvent);
+    document.dispatchEvent(toastEvent);
 };

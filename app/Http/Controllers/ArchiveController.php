@@ -183,6 +183,8 @@ class ArchiveController extends Controller
 
         $this->archiveService->storeBulkArchives($validated['archives'], Auth::id());
 
+        session()->flash('success', 'Semua arsip berhasil disimpan!');
+
         return response()->json([
             'message' => 'Semua arsip berhasil disimpan!',
         ]);

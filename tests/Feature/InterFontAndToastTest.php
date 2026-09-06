@@ -1,6 +1,15 @@
 <?php
 
+use App\Livewire\ArchiveTable;
+use App\Livewire\UserTable;
+use App\Models\Archive;
+use App\Models\Category;
+use App\Models\Classification;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Livewire;
+use Spatie\Permission\Models\Role;
 
 it('standardizes typography on inter across login and authenticated layouts', function () {
     $user = User::factory()->create();
@@ -89,4 +98,86 @@ it('verifies livewire tables no longer contain legacy inline session banners', f
     expect($userTableView)->not->toContain("session('error')");
     expect($userTableView)->not->toContain("session()->has('success')");
     expect($userTableView)->not->toContain("session()->has('error')");
+});
+
+it('dispatches reactive toast-show event when deleting archive in livewire archive table', function () {
+    $role = Role::firstOrCreate(['name' => 'Administrator']);
+    $user = User::factory()->create();
+    $user->assignRole($role);
+
+    $category = Category::create(['name' => 'Umum']);
+    $classification = Classification::create(['name' => 'Biasa', 'level' => 1]);
+
+    $archive = Archive::create([
+        'category_id' => $category->id,
+        'classification_id' => $classification->id,
+        'user_id' => $user->id,
+        'title' => 'Arsip Hapus Test',
+        'file_path' => 'private/archives/test.pdf',
+        'file_type' => 'pdf',
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(ArchiveTable::class)
+        ->call('deleteArchive', $archive->id)
+        ->assertDispatched('toast-show');
+
+    expect(Archive::find($archive->id))->toBeNull();
+});
+
+it('dispatches reactive toast-show event when deleting user in livewire user table', function () {
+    $role = Role::firstOrCreate(['name' => 'Pimpinan']);
+    $role->givePermissionTo('manage-users');
+
+    $admin = User::factory()->create();
+    $admin->assignRole($role);
+
+    $targetUser = User::factory()->create();
+
+    Livewire::actingAs($admin)
+        ->test(UserTable::class)
+        ->call('deleteUser', $targetUser->id)
+        ->assertDispatched('toast-show');
+
+    expect(User::find($targetUser->id))->toBeNull();
+});
+
+it('dispatches persistent danger toast when user attempts self deletion in livewire user table', function () {
+    $role = Role::firstOrCreate(['name' => 'Pimpinan']);
+    $role->givePermissionTo('manage-users');
+
+    $admin = User::factory()->create();
+    $admin->assignRole($role);
+
+    Livewire::actingAs($admin)
+        ->test(UserTable::class)
+        ->call('deleteUser', $admin->id)
+        ->assertDispatched('toast-show');
+
+    expect(User::find($admin->id))->not->toBeNull();
+});
+
+it('flashes session success on bulk store for redirect toast presentation', function () {
+    Storage::fake('local');
+    $user = User::factory()->create();
+    $category = Category::create(['name' => 'Umum']);
+    $classification = Classification::create(['name' => 'Biasa', 'level' => 1]);
+
+    $file = UploadedFile::fake()->create('doc1.pdf', 100, 'application/pdf');
+    $path = $file->storeAs('temp/archives', 'doc1.pdf', 'local');
+
+    $response = $this->actingAs($user)->postJson(route('archives.bulk-store'), [
+        'archives' => [
+            [
+                'title' => 'Bulk Doc Test',
+                'file_path' => $path,
+                'file_type' => 'pdf',
+                'category_id' => $category->id,
+                'classification_id' => $classification->id,
+            ],
+        ],
+    ]);
+
+    $response->assertOk();
+    $response->assertSessionHas('success', 'Semua arsip berhasil disimpan!');
 });

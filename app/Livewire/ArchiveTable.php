@@ -64,6 +64,7 @@ class ArchiveTable extends Component
 
         $archive->delete();
         session()->flash('success', 'Arsip berhasil dihapus!');
+        $this->dispatch('toast-show', slots: ['text' => 'Arsip berhasil dihapus!', 'heading' => 'Sukses'], dataset: ['variant' => 'success'], duration: 5000);
     }
 
     public function render()
