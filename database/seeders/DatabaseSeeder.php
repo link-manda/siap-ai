@@ -25,10 +25,17 @@ class DatabaseSeeder extends Seeder
         $admin = User::factory()->create([
             'name' => 'Administrator',
             'email' => 'admin@puskesmas.go.id',
-            'password' => bcrypt('password'), // Or use static hash
+            'password' => bcrypt('password'),
         ]);
+        $admin->syncRoles(['Administrator']);
 
-        $admin->assignRole('Administrator');
+        // Pimpinan User
+        $pimpinan = User::factory()->create([
+            'name' => 'Pimpinan',
+            'email' => 'pimpinan@puskesmas.go.id',
+            'password' => bcrypt('password'),
+        ]);
+        $pimpinan->syncRoles(['Pimpinan']);
 
         // Categories
         $categories = ['Surat Keputusan', 'Surat Masuk', 'Surat Keluar', 'Rekam Medis', 'Laporan Keuangan', 'Data Pegawai'];
