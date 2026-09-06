@@ -1,43 +1,64 @@
 @extends('layouts.app')
 
 @section('content')
-  <div class="grid grid-cols-12 gap-4 md:gap-6">
-    <div class="col-span-12">
-        <h2 class="text-title-sm font-semibold text-gray-800 dark:text-white/90 mb-4">Ringkasan Sistem</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-theme-sm dark:border-gray-800 dark:bg-gray-dark">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Arsip</p>
-                        <h4 class="mt-2 text-title-sm font-bold text-gray-800 dark:text-white/90">{{ $totalArchives ?? 0 }}</h4>
-                    </div>
-                    <div class="flex h-12 w-12 items-center justify-center rounded-full bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                        </svg>
-                    </div>
+  <div class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+            <h1 class="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">Dashboard Ringkasan</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Statistik dan tren pengelolaan arsip digital Puskesmas.</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 rounded-lg">
+                <span class="size-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-pulse"></span>
+                <span>Sistem Aktif</span>
+            </span>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {{-- Total Arsip Card --}}
+        <flux:card class="flex flex-col justify-between p-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xs">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Total Arsip Tersimpan</span>
+                <div class="size-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                    <flux:icon icon="folder" class="size-4" />
                 </div>
             </div>
-            
-            <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-theme-sm dark:border-gray-800 dark:bg-gray-dark md:col-span-2">
-                 <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">Tren Unggahan Bulanan</h4>
-                 <div id="monthlyChart" class="-ml-4 -mb-4"></div>
+            <div class="mt-4 flex items-baseline gap-2">
+                <span class="text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">{{ $totalArchives ?? 0 }}</span>
+                <span class="text-xs text-zinc-500 dark:text-zinc-400">dokumen</span>
             </div>
-        </div>
+            <div class="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between text-[11px] text-zinc-500">
+                <span>Status Sinkronisasi</span>
+                <span class="text-emerald-600 dark:text-emerald-400 font-medium">Real-time</span>
+            </div>
+        </flux:card>
+
+        {{-- Monthly Trend Chart Card --}}
+        <flux:card class="md:col-span-2 p-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xs flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-2">
+                <div>
+                    <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Tren Unggahan Dokumen ({{ date('Y') }})</h3>
+                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Distribusi dokumen baru setiap bulan</p>
+                </div>
+            </div>
+            <div id="monthlyChart" class="-ml-2 w-full h-32"></div>
+        </flux:card>
     </div>
-    
-    <div class="col-span-12 md:col-span-6">
-        <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-theme-sm dark:border-gray-800 dark:bg-gray-dark h-full">
-            <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-6 text-center">Komposisi Kategori</h4>
-            <div id="categoryChart" class="flex justify-center"></div>
-        </div>
-    </div>
-    
-    <div class="col-span-12 md:col-span-6">
-        <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-theme-sm dark:border-gray-800 dark:bg-gray-dark h-full">
-            <h4 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-6 text-center">Klasifikasi Kerahasiaan</h4>
-            <div id="classificationChart" class="flex justify-center"></div>
-        </div>
+
+    {{-- Category & Classification Charts --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <flux:card class="p-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xs">
+            <h3 class="text-sm font-semibold text-zinc-900 dark:text-white mb-1">Komposisi Kategori Arsip</h3>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mb-4">Proporsi dokumen berdasarkan kelompok bidang</p>
+            <div id="categoryChart" class="flex justify-center min-h-[260px]"></div>
+        </flux:card>
+
+        <flux:card class="p-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xs">
+            <h3 class="text-sm font-semibold text-zinc-900 dark:text-white mb-1">Tingkat Kerahasiaan Dokumen</h3>
+            <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mb-4">Distribusi level keamanan & akses arsip</p>
+            <div id="classificationChart" class="flex justify-center min-h-[260px]"></div>
+        </flux:card>
     </div>
   </div>
 

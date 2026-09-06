@@ -1,33 +1,34 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 class="text-title-md2 font-bold text-black dark:text-white">
-            Unggah Arsip Massal (AI)
-        </h2>
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+            <h1 class="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">Unggah Arsip Massal (AI)</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Ekstrak teks, ringkasan, dan klasifikasi otomatis hingga 5 dokumen sekaligus menggunakan AI.</p>
+        </div>
     </div>
 
     <div x-data="bulkUpload()" class="grid grid-cols-1 gap-6 xl:grid-cols-2">
         <!-- Panel Kiri: Daftar Antrean & Upload -->
         <div class="space-y-6">
-            <div class="rounded-xl border border-gray-200 bg-white shadow-theme-sm dark:border-gray-800 dark:bg-gray-dark">
-                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800">
-                    <h3 class="font-medium text-gray-800 dark:text-white/90">1. Pilih Dokumen (Maks 5)</h3>
+            <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs">
+                <div class="border-b border-zinc-200 dark:border-zinc-800 px-6 py-4">
+                    <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">1. Pilih Dokumen (Maksimal 5)</h3>
                 </div>
                 <div class="p-6">
                     <div class="mb-4">
-                        <label class="mb-3 block text-sm font-medium text-black dark:text-white">
-                            Pilih File PDF, Word, Excel, Gambar
+                        <label class="mb-2 block text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                            Pilih Berkas (PDF, Word, Excel, Gambar)
                         </label>
                         <input 
                             type="file" 
                             multiple 
                             accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"
                             @change="handleFiles($event.target.files)"
-                            class="w-full cursor-pointer rounded-lg border-[1.5px] border-stroke bg-transparent font-normal outline-none transition file:mr-5 file:border-collapse file:cursor-pointer file:border-0 file:border-r file:border-solid file:border-stroke file:bg-whiter file:py-3 file:px-5 file:hover:bg-primary file:hover:bg-opacity-10 focus:border-primary active:border-primary disabled:cursor-default disabled:bg-whiter dark:border-form-strokedark dark:bg-form-input dark:file:border-form-strokedark dark:file:bg-white/30 dark:file:text-white dark:focus:border-primary"
+                            class="w-full text-xs cursor-pointer rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 file:mr-4 file:py-2.5 file:px-4 file:rounded-l-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 text-zinc-700 dark:text-zinc-300 focus:outline-hidden"
                             :disabled="files.length >= 5 || isSaving"
                         />
-                        <p class="mt-2 text-xs text-gray-500" x-show="files.length >= 5">Batas maksimal 5 file telah tercapai.</p>
+                        <p class="mt-2 text-xs text-amber-600 dark:text-amber-400" x-show="files.length >= 5">Batas maksimal 5 berkas telah tercapai.</p>
                     </div>
 
                     <!-- Daftar File -->
@@ -81,28 +82,28 @@
 
         <!-- Panel Kanan: Form Edit -->
         <div class="space-y-6">
-            <div class="rounded-xl border border-gray-200 bg-white shadow-theme-sm dark:border-gray-800 dark:bg-gray-dark h-full flex flex-col">
-                <div class="border-b border-gray-200 px-6 py-4 dark:border-gray-800 flex justify-between items-center">
-                    <h3 class="font-medium text-gray-800 dark:text-white/90">2. Edit Detail File</h3>
-                    <span x-show="files.length > 0" class="text-xs font-medium px-2 py-1 bg-gray-100 rounded-full dark:bg-gray-800" x-text="`File ${activeIndex + 1} dari ${files.length}`"></span>
+            <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs h-full flex flex-col">
+                <div class="border-b border-zinc-200 dark:border-zinc-800 px-6 py-4 flex justify-between items-center">
+                    <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">2. Edit Detail File</h3>
+                    <span x-show="files.length > 0" class="text-xs font-medium px-2 py-0.5 bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 rounded-full" x-text="`File ${activeIndex + 1} dari ${files.length}`"></span>
                 </div>
                 
                 <div class="p-6 flex-grow">
                     <template x-if="files.length > 0 && activeFile">
-                        <div>
-                            <div class="mb-4">
-                                <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Judul Arsip <span class="text-error-500">*</span></label>
-                                <input type="text" x-model="activeFile.data.title" class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-brand-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white" :disabled="isSaving" />
+                        <div class="space-y-4">
+                            <div>
+                                <label class="mb-1.5 block text-xs font-medium text-zinc-700 dark:text-zinc-300">Judul Arsip <span class="text-rose-500">*</span></label>
+                                <input type="text" x-model="activeFile.data.title" class="w-full text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-indigo-500" :disabled="isSaving" />
                             </div>
                             
-                            <div class="mb-4">
-                                <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Nomor Dokumen</label>
-                                <input type="text" x-model="activeFile.data.document_number" class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-brand-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white" :disabled="isSaving" />
+                            <div>
+                                <label class="mb-1.5 block text-xs font-medium text-zinc-700 dark:text-zinc-300">Nomor Dokumen</label>
+                                <input type="text" x-model="activeFile.data.document_number" class="w-full text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-indigo-500" :disabled="isSaving" />
                             </div>
 
-                            <div class="mb-4">
-                                <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Kategori Prediksi AI <span class="text-error-500">*</span></label>
-                                <select x-model="activeFile.data.category_id" class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-brand-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white" :disabled="isSaving">
+                            <div>
+                                <label class="mb-1.5 block text-xs font-medium text-zinc-700 dark:text-zinc-300">Kategori Prediksi AI <span class="text-rose-500">*</span></label>
+                                <select x-model="activeFile.data.category_id" class="w-full text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-indigo-500" :disabled="isSaving">
                                     <option value="">-- Pilih Kategori --</option>
                                     @foreach($categories as $category)
                                         <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -110,12 +111,12 @@
                                 </select>
                             </div>
 
-                            <div class="mb-4">
-                                <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Klasifikasi Keamanan <span class="text-error-500">*</span></label>
-                                <select x-model="activeFile.data.classification_id" class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-brand-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white" :disabled="isSaving">
+                            <div>
+                                <label class="mb-1.5 block text-xs font-medium text-zinc-700 dark:text-zinc-300">Klasifikasi Keamanan <span class="text-rose-500">*</span></label>
+                                <select x-model="activeFile.data.classification_id" class="w-full text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-indigo-500" :disabled="isSaving">
                                     <option value="">-- Pilih Klasifikasi --</option>
                                     @foreach($classifications as $classification)
-                                        @if(auth()->user()->role === 'Admin' && $classification->level === 4)
+                                        @if(!auth()->user()->hasRole('Pimpinan') && $classification->level === 4)
                                             @continue
                                         @endif
                                         <option value="{{ $classification->id }}">{{ $classification->name }}</option>
@@ -123,9 +124,9 @@
                                 </select>
                             </div>
 
-                            <div class="mb-6">
-                                <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-400">Ringkasan AI</label>
-                                <textarea x-model="activeFile.data.summary" rows="4" class="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-brand-300 dark:border-gray-700 dark:bg-gray-900 dark:text-white" :disabled="isSaving"></textarea>
+                            <div>
+                                <label class="mb-1.5 block text-xs font-medium text-zinc-700 dark:text-zinc-300">Ringkasan AI</label>
+                                <textarea x-model="activeFile.data.summary" rows="4" class="w-full text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-indigo-500" :disabled="isSaving"></textarea>
                             </div>
                         </div>
                     </template>
