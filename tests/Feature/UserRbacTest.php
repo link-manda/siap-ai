@@ -6,13 +6,7 @@ use Spatie\Permission\Models\Role;
 it('can resolve spatie roles on User model', function () {
     $user = User::factory()->create();
     
-    // Create a spatie role
-    $role = Role::create(['name' => 'Administrator']);
-    
-    // Assign role
-    $user->assignRole('Administrator');
-    
-    // Assert the user has the role
+    // Assert the user has the role (defaults to Administrator via Factory)
     expect($user->hasRole('Administrator'))->toBeTrue();
     expect($user->hasRole('Pimpinan'))->toBeFalse();
 });

@@ -12,8 +12,10 @@ beforeEach(function () {
     $this->classSangatRahasia = Classification::create(['name' => 'Sangat Rahasia', 'level' => 4]);
     $this->classBiasa = Classification::create(['name' => 'Biasa', 'level' => 1]);
 
-    $this->pimpinanUser = User::factory()->create(['role' => 'Pimpinan']);
-    $this->adminUser = User::factory()->create(['role' => 'Admin']);
+    $this->adminUser = User::factory()->create();
+
+    $this->pimpinanUser = User::factory()->create();
+    $this->pimpinanUser->assignRole('Pimpinan');
 
     Archive::create([
         'title' => 'Top Secret Archive',

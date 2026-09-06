@@ -15,7 +15,8 @@ beforeEach(function () {
     $this->classSangatRahasia = Classification::create(['name' => 'Sangat Rahasia', 'level' => 4]);
     $this->classBiasa = Classification::create(['name' => 'Biasa', 'level' => 1]);
 
-    $this->pimpinanUser = User::factory()->create(['role' => 'Pimpinan']);
+    $this->pimpinanUser = User::factory()->create();
+    $this->pimpinanUser->assignRole('Pimpinan');
 
     // Create a dummy PDF
     Storage::disk('local')->put('private/archives/test.pdf', 'dummy pdf content');

@@ -10,7 +10,7 @@ class AuditTrailController extends Controller
     {
         $query = ArchiveLog::with(['user', 'archive']);
 
-        if (auth()->user()->role !== 'Pimpinan') {
+        if (!auth()->user()->hasRole('Pimpinan')) {
             $query->whereHas('archive.classification', function ($q) {
                 $q->where('level', '<=', 3);
             });

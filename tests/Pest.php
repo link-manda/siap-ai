@@ -18,6 +18,10 @@ pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
 
+uses()->beforeEach(function () {
+    $this->seed(\Database\Seeders\RoleAndPermissionSeeder::class);
+})->in('Feature');
+
 /*
 |--------------------------------------------------------------------------
 | Expectations

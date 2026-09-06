@@ -17,13 +17,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call([
+            RoleAndPermissionSeeder::class,
+        ]);
+
         // Admin User
-        User::factory()->create([
+        $admin = User::factory()->create([
             'name' => 'Administrator',
             'email' => 'admin@puskesmas.go.id',
-            'role' => 'Admin',
             'password' => bcrypt('password'), // Or use static hash
         ]);
+        
+        $admin->assignRole('Administrator');
 
         // Categories
         $categories = ['Surat Keputusan', 'Surat Masuk', 'Surat Keluar', 'Rekam Medis', 'Laporan Keuangan', 'Data Pegawai'];

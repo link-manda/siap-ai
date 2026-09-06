@@ -12,7 +12,7 @@ class ArchivePolicy
      */
     public function viewAny(User $user): bool
     {
-        return in_array($user->role, ['Admin', 'Pimpinan']);
+        return $user->hasRole(['Administrator', 'Pimpinan']);
     }
 
     /**
@@ -20,13 +20,11 @@ class ArchivePolicy
      */
     public function view(User $user, Archive $archive): bool
     {
-        $role = $user->role ?? 'Admin';
-
-        if ($role === 'Pimpinan') {
+        if ($user->hasRole('Pimpinan')) {
             return true;
         }
 
-        if ($role === 'Admin') {
+        if ($user->hasRole('Administrator')) {
             // Assume default level 1 if not explicitly loaded
             $level = $archive->classification?->level ?? 1;
 

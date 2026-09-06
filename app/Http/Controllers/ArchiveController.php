@@ -48,7 +48,7 @@ class ArchiveController extends Controller
 
     public function create()
     {
-        $classifications = Auth::user()->role === 'Pimpinan'
+        $classifications = Auth::user()->hasRole('Pimpinan')
             ? Classification::all()
             : Classification::where('level', '<=', 3)->get();
 
@@ -78,9 +78,8 @@ class ArchiveController extends Controller
         );
 
         $classification = Classification::find($aiDraftData['classification_id']);
-        $role = Auth::user()->role ?? 'Admin';
 
-        if ($role === 'Admin' && $classification && $classification->level === 4) {
+        if (Auth::user()->hasRole('Administrator') && $classification && $classification->level === 4) {
             $aiDraftData['extracted_text'] = '[REDACTED]';
             $aiDraftData['summary'] = '[REDACTED - Level 4 Security]';
         }
@@ -121,8 +120,7 @@ class ArchiveController extends Controller
                 'exists:classifications,id',
                 function ($attribute, $value, $fail) {
                     $classification = Classification::find($value);
-                    $role = Auth::user()->role ?? 'Admin';
-                    if ($role === 'Admin' && $classification && $classification->level === 4) {
+                    if (Auth::user()->hasRole('Administrator') && $classification && $classification->level === 4) {
                         $fail('Anda tidak memiliki izin untuk menyimpan arsip dengan klasifikasi ini.');
                     }
                     if ($classification && $classification->level === 4) {
@@ -175,8 +173,7 @@ class ArchiveController extends Controller
                 'exists:classifications,id',
                 function ($attribute, $value, $fail) {
                     $classification = Classification::find($value);
-                    $role = Auth::user()->role ?? 'Admin';
-                    if ($role === 'Admin' && $classification && $classification->level === 4) {
+                    if (Auth::user()->hasRole('Administrator') && $classification && $classification->level === 4) {
                         $fail('Anda tidak memiliki izin untuk menyimpan arsip dengan klasifikasi ini.');
                     }
 
