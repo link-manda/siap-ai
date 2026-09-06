@@ -183,7 +183,8 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 Sebelum mengerjakan atau merencanakan fitur apapun, agen **WAJIB** mengecek daftar `<skills>` yang tersedia di lingkungan `antigravity-cli`. 
 - Jika tugas berkaitan dengan kode backend PHP/Laravel (Controller, Model, Service), agen **wajib** menggunakan/merujuk pada skill `laravel-best-practices`.
 - Jika tugas berkaitan dengan integrasi AI (Gemini/OpenAI) atau `laravel/ai`, agen **wajib** menggunakan/merujuk pada skill `ai-sdk-development`.
-- Jika tugas berkaitan dengan tampilan frontend/blade, agen **wajib** merujuk pada skill `tailwindcss-development`.
+- Jika tugas berkaitan dengan tampilan frontend/blade/Flux UI, agen **wajib** merujuk pada skill `fluxui-development` dan `tailwindcss-development`.
+- Jika tugas berkaitan dengan komponen reaktif Livewire/DataTable, agen **wajib** merujuk pada skill `livewire-development`.
 Agen tidak boleh melakukan *coding* manual mengandalkan pengetahuan dasar jika *skill* khusus tersedia untuk ranah tersebut. Sebutkan skill apa yang digunakan di awal respons Anda.
 
 ## 1. Pola Service-Repository (Wajib)
@@ -201,6 +202,10 @@ Agen tidak boleh melakukan *coding* manual mengandalkan pengetahuan dasar jika *
 ## 3. View Resources (Blade & JS)
 - Penamaan file Blade harus `snake_case`. Jika menggunakan *sub-view*, gunakan prefix nama induknya (contoh: `archive_form.blade.php`).
 - **Aturan Javascript**: Tidak boleh menyisipkan fungsi PHP/Blade (`{{ }}`) secara langsung ke dalam blok algoritma/fungsi Javascript. Semua transisi data Blade ke JS harus menggunakan deklarasi variabel `const` atau `let` di bagian paling atas blok `<script>`, atau menggunakan direktif `@json()`.
+- **Larangan Mutlak Emoji sebagai Ikon (NO EMOJI ICONS)**: DILARANG KERAS menggunakan karakter emoji UTF-8 (misal 📄, 🔒, 🗑️, 👁️, ⚙️, 📁, dsb.) sebagai elemen ikon UI di seluruh sistem SIAP-AI. Seluruh ikon wajib menggunakan pustaka resmi Flux UI (`<flux:icon icon="..." />`) atau Heroicons SVG terstandar.
+- **Standarisasi Komponen Flux UI**: Gunakan komponen bawaan Flux UI (`<flux:card>`, `<flux:button>`, `<flux:badge>`, `<flux:input>`, `<flux:select>`, `<flux:dropdown>`) untuk menjaga konsistensi desain, proporsi visual, dan kompatibilitas tema gelap/terang. Hindari menulis inline `<svg>` mentah puluhan baris jika padanan ikon resmi Flux UI tersedia.
+- **Kebersihan Template & Zero Orphan Views**: Dilarang membiarkan berkas Blade yatim (*orphan*) atau sisa-sisa komponen template lama (TailAdmin) mengendap di `resources/views/`. Setiap file Blade yang ada di direktori views harus memiliki jalur pemanggilan aktif via rute, controller, Livewire, atau direktif `@include`/`@extends`.
+- **Efisiensi Aset JS/CSS (Vite)**: Hindari import statis pustaka eksternal berat pada `resources/js/app.js` untuk fitur yang tidak dipakai secara global. Gunakan *dynamic import* (`import(...)`) berbasis pemuatan halaman atau selektor DOM aktif agar ukuran bundle produksi tetap optimal.
 
 ## 4. Konteks PRD SIAP-AI
 - Fitur utama adalah (FR-04) Integrasi AI untuk klasifikasi dokumen (Kategori, Klasifikasi Keamanan, dan Summary) yang dieksekusi di layer `AiClassificationService`.
