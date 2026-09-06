@@ -64,6 +64,9 @@ class ArchiveController extends Controller
         // Increase maximum execution time to 120 seconds to accommodate slow AI models
         set_time_limit(120);
 
+        // Lepaskan session lock secepatnya agar request konruen (bulk) tidak saling memblokir (session blocking)
+        session()->save();
+
         $request->validate([
             'document' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx', 'max:10240'],
             'extracted_text' => ['nullable', 'string', 'max:20000'],
