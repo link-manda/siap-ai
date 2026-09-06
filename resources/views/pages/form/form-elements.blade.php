@@ -225,7 +225,7 @@
                     };
                     
                     this.files.push(fileItem);
-                    this.processSingleFile(fileItem);
+                    this.processSingleFile(this.files[this.files.length - 1]);
                 }
                 
                 if (this.files.length > 0 && this.activeIndex >= this.files.length) {
