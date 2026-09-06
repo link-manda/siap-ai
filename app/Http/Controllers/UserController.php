@@ -8,9 +8,12 @@ use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class UserController extends Controller
 {
+    use AuthorizesRequests;
+
     public function __construct(
         protected UserService $userService,
         protected UserRepository $userRepository
