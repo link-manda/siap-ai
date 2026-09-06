@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Interfaces\ArchiveRepositoryInterface;
 use App\Models\Archive;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ArchiveService
@@ -55,6 +56,24 @@ class ArchiveService
         $validatedData['uploaded_by'] = $userId;
 
         return $this->archiveRepository->create($validatedData);
+    }
+
+    /**
+     * Save multiple archives in a single transaction.
+     */
+    public function storeBulkArchives(array $archivesData, int $userId): array
+    {
+        $savedArchives = [];
+
+        DB::transaction(function () use ($archivesData, $userId, &$savedArchives) {
+            foreach ($archivesData as $data) {
+                $data['uploaded_by'] = $userId;
+                $archive = $this->archiveRepository->create($data);
+                $savedArchives[] = $archive;
+            }
+        });
+
+        return $savedArchives;
     }
 
     public function getDashboardStats(): array

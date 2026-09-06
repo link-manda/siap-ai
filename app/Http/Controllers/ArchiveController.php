@@ -103,7 +103,17 @@ class ArchiveController extends Controller
             'file_type' => ['required', 'string'],
             'file_size' => ['nullable', 'numeric'],
             'category_id' => ['required', 'exists:categories,id'],
-            'classification_id' => ['required', 'exists:classifications,id'],
+            'classification_id' => [
+                'required',
+                'exists:classifications,id',
+                function ($attribute, $value, $fail) {
+                    $classification = Classification::find($value);
+                    $role = Auth::user()->role ?? 'Admin';
+                    if ($role === 'Admin' && $classification && $classification->level === 4) {
+                        $fail('Anda tidak memiliki izin untuk menyimpan arsip dengan klasifikasi ini.');
+                    }
+                },
+            ],
             'summary' => ['nullable', 'string'],
             'extracted_text' => ['nullable', 'string'],
             'ai_model' => ['nullable', 'string'],
@@ -113,6 +123,54 @@ class ArchiveController extends Controller
         $this->archiveService->storeArchive($validated, Auth::id());
 
         return redirect()->route('archives.index')->with('success', 'Arsip berhasil disimpan!');
+    }
+
+    public function bulkStore(Request $request)
+    {
+        $validated = $request->validate([
+            'archives' => ['required', 'array', 'min:1', 'max:5'],
+            'archives.*.title' => ['required', 'string', 'max:255'],
+            'archives.*.document_number' => ['nullable', 'string', 'max:255'],
+            'archives.*.document_date' => ['nullable', 'date'],
+            'archives.*.retention_date' => ['nullable', 'date'],
+            'archives.*.file_path' => [
+                'required',
+                'string',
+                function ($attribute, $value, $fail) {
+                    if (! str_starts_with($value, 'private/archives/') || str_contains($value, '..')) {
+                        $fail('File path tidak valid.');
+                    }
+                    $fullPath = Storage::path($value);
+                    if (! Storage::exists($value) || ! is_file($fullPath)) {
+                        $fail('File fisik tidak valid atau berupa direktori.');
+                    }
+                },
+            ],
+            'archives.*.file_type' => ['required', 'string'],
+            'archives.*.file_size' => ['nullable', 'numeric'],
+            'archives.*.category_id' => ['required', 'exists:categories,id'],
+            'archives.*.classification_id' => [
+                'required',
+                'exists:classifications,id',
+                function ($attribute, $value, $fail) {
+                    $classification = Classification::find($value);
+                    $role = Auth::user()->role ?? 'Admin';
+                    if ($role === 'Admin' && $classification && $classification->level === 4) {
+                        $fail('Anda tidak memiliki izin untuk menyimpan arsip dengan klasifikasi ini.');
+                    }
+                },
+            ],
+            'archives.*.summary' => ['nullable', 'string'],
+            'archives.*.extracted_text' => ['nullable', 'string'],
+            'archives.*.ai_model' => ['nullable', 'string'],
+            'archives.*.ai_confidence_score' => ['nullable', 'numeric'],
+        ]);
+
+        $this->archiveService->storeBulkArchives($validated['archives'], Auth::id());
+
+        return response()->json([
+            'message' => 'Semua arsip berhasil disimpan!',
+        ]);
     }
 
     public function stream($id)
