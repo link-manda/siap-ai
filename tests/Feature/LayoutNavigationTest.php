@@ -36,3 +36,25 @@ it('shows user management menu to pimpinan and hides it from regular admin', fun
     $responseAdmin->assertStatus(200);
     $responseAdmin->assertDontSee('Pengguna & Role');
 });
+
+it('renders login page with siap-ai branding and without dead links', function () {
+    $response = $this->get(route('login'));
+
+    $response->assertStatus(200);
+    $response->assertSee('SIAP-AI');
+    $response->assertSee('Masuk ke Sistem');
+    $response->assertDontSee('/signup');
+    $response->assertDontSee('auth-logo.svg');
+});
+
+it('renders profile page with authenticated user details', function () {
+    $user = User::factory()->create(['name' => 'Dokter Penguji', 'email' => 'dokter@puskesmas.test']);
+
+    $response = $this->actingAs($user)->get(route('profile'));
+
+    $response->assertStatus(200);
+    $response->assertSee('Profil Pengguna');
+    $response->assertSee('Dokter Penguji');
+    $response->assertSee('dokter@puskesmas.test');
+    $response->assertDontSee('Musharof');
+});

@@ -45,16 +45,3 @@ Route::middleware('auth')->group(function () {
         return view('pages.profile', ['title' => 'Profile']);
     })->name('profile');
 });
-
-// Fallback for development (keeping tailadmin UI testing routes)
-Route::prefix('ui')->group(function () {
-    Route::get('/calendar', function () {
-        return view('pages.calender', ['title' => 'Calendar']);
-    });
-    Route::get('/alerts', function () {
-        return view('pages.ui-elements.alerts', ['title' => 'Alerts']);
-    });
-    Route::get('/buttons', function () {
-        return view('pages.ui-elements.buttons', ['title' => 'Buttons']);
-    });
-});
