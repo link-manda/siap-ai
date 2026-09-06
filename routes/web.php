@@ -36,6 +36,9 @@ Route::middleware('auth')->group(function () {
     // Audit Trail
     Route::get('/audit-trail', [AuditTrailController::class, 'index'])->name('audit.index');
 
+    // Users Management
+    Route::resource('users', \App\Http\Controllers\UserController::class)->except(['show']);
+
     // Profile & Setup (placeholders from template)
     Route::get('/profile', function () {
         return view('pages.profile', ['title' => 'Profile']);
