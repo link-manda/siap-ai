@@ -20,11 +20,11 @@ class ArchiveService
      */
     public function processUpload(UploadedFile $file, ?string $extractedText = null): array
     {
-        // Save file securely to private storage
-        $path = $file->store('private/archives');
+        // Save file temporarily to avoid orphan leaks if not saved
+        $path = $file->store('temp/archives');
 
         $fileName = $file->getClientOriginalName();
-        $fileType = $file->getClientOriginalExtension();
+        $fileType = $file->extension() ?: $file->getClientOriginalExtension();
         $fileSize = $file->getSize();
 
         // If no text is provided, in a real app we would run OCR here.
@@ -54,6 +54,7 @@ class ArchiveService
     public function storeArchive(array $validatedData, int $userId): Archive
     {
         $validatedData['uploaded_by'] = $userId;
+        $validatedData['file_path'] = $this->moveToPrivateStorage($validatedData['file_path']);
 
         return $this->archiveRepository->create($validatedData);
     }
@@ -66,14 +67,30 @@ class ArchiveService
         $savedArchives = [];
 
         DB::transaction(function () use ($archivesData, $userId, &$savedArchives) {
+            $savedArchives = []; // Reset on retry
             foreach ($archivesData as $data) {
                 $data['uploaded_by'] = $userId;
+                $data['file_path'] = $this->moveToPrivateStorage($data['file_path']);
                 $archive = $this->archiveRepository->create($data);
                 $savedArchives[] = $archive;
             }
-        });
+        }, 3);
 
         return $savedArchives;
+    }
+
+    protected function moveToPrivateStorage(string $tempPath): string
+    {
+        if (str_starts_with($tempPath, 'temp/archives/')) {
+            $newPath = str_replace('temp/archives/', 'private/archives/', $tempPath);
+            if (Storage::exists($tempPath)) {
+                Storage::move($tempPath, $newPath);
+
+                return $newPath;
+            }
+        }
+
+        return $tempPath;
     }
 
     public function getDashboardStats(): array

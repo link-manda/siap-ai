@@ -24,8 +24,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/export/excel', [ArchiveController::class, 'exportExcel'])->name('export.excel');
         Route::get('/export/pdf', [ArchiveController::class, 'exportPdf'])->name('export.pdf');
         Route::get('/create', [ArchiveController::class, 'create'])->name('create');
-        Route::post('/process-ai', [ArchiveController::class, 'processAi'])->name('process-ai');
-        Route::post('/bulk', [ArchiveController::class, 'bulkStore'])->name('bulk-store');
+        Route::post('/process-ai', [ArchiveController::class, 'processAi'])->name('process-ai')->middleware('throttle:10,1');
+        Route::post('/bulk', [ArchiveController::class, 'bulkStore'])->name('bulk-store')->middleware('throttle:15,1');
         Route::post('/', [ArchiveController::class, 'store'])->name('store');
         Route::get('/{id}/download', [ArchiveController::class, 'download'])->name('download')->middleware('throttle:60,1');
         Route::get('/{id}/stream', [ArchiveController::class, 'stream'])->name('stream')->middleware('throttle:30,1');

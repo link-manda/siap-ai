@@ -14,7 +14,7 @@ class AiClassificationService
     public function classifyDocument(string $text): array
     {
         // For development/Tugas Akhir, we pass the extracted text to the AI agent
-        $response = (new ArchiveClassifier)->prompt("Tolong analisis teks dokumen ini:\n\n" . $text);
+        $response = (new ArchiveClassifier)->prompt("Tolong analisis teks dokumen ini:\n\n<document_text>\n".$text."\n</document_text>");
 
         $categoryName = $response['category_name'];
         $classificationName = $response['classification_name'];

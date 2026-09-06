@@ -66,13 +66,21 @@ class ArchiveController extends Controller
 
         $request->validate([
             'document' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png,doc,docx,xls,xlsx', 'max:10240'],
-            'extracted_text' => ['nullable', 'string'],
+            'extracted_text' => ['nullable', 'string', 'max:20000'],
         ]);
 
         $aiDraftData = $this->archiveService->processUpload(
             $request->file('document'),
             $request->input('extracted_text')
         );
+
+        $classification = Classification::find($aiDraftData['classification_id']);
+        $role = Auth::user()->role ?? 'Admin';
+
+        if ($role === 'Admin' && $classification && $classification->level === 4) {
+            $aiDraftData['extracted_text'] = '[REDACTED]';
+            $aiDraftData['summary'] = '[REDACTED - Level 4 Security]';
+        }
 
         return response()->json([
             'status' => 'success',
@@ -82,6 +90,8 @@ class ArchiveController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', Archive::class);
+
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'document_number' => ['nullable', 'string', 'max:255'],
@@ -91,7 +101,7 @@ class ArchiveController extends Controller
                 'required',
                 'string',
                 function ($attribute, $value, $fail) {
-                    if (! str_starts_with($value, 'private/archives/') || str_contains($value, '..')) {
+                    if ((! str_starts_with($value, 'private/archives/') && ! str_starts_with($value, 'temp/archives/')) || str_contains($value, '..')) {
                         $fail('File path tidak valid.');
                     }
                     $fullPath = Storage::path($value);
@@ -112,6 +122,12 @@ class ArchiveController extends Controller
                     if ($role === 'Admin' && $classification && $classification->level === 4) {
                         $fail('Anda tidak memiliki izin untuk menyimpan arsip dengan klasifikasi ini.');
                     }
+                    if ($classification && $classification->level === 4) {
+                        $fileType = strtolower(request()->input('file_type', ''));
+                        if (in_array($fileType, ['doc', 'docx', 'xls', 'xlsx'])) {
+                            $fail('Dokumen Office (Word/Excel) tidak didukung untuk Tingkat 4. Harap konversi ke PDF.');
+                        }
+                    }
                 },
             ],
             'summary' => ['nullable', 'string'],
@@ -127,6 +143,8 @@ class ArchiveController extends Controller
 
     public function bulkStore(Request $request)
     {
+        $this->authorize('create', Archive::class);
+
         $validated = $request->validate([
             'archives' => ['required', 'array', 'min:1', 'max:5'],
             'archives.*.title' => ['required', 'string', 'max:255'],
@@ -137,7 +155,7 @@ class ArchiveController extends Controller
                 'required',
                 'string',
                 function ($attribute, $value, $fail) {
-                    if (! str_starts_with($value, 'private/archives/') || str_contains($value, '..')) {
+                    if ((! str_starts_with($value, 'private/archives/') && ! str_starts_with($value, 'temp/archives/')) || str_contains($value, '..')) {
                         $fail('File path tidak valid.');
                     }
                     $fullPath = Storage::path($value);
@@ -157,6 +175,15 @@ class ArchiveController extends Controller
                     $role = Auth::user()->role ?? 'Admin';
                     if ($role === 'Admin' && $classification && $classification->level === 4) {
                         $fail('Anda tidak memiliki izin untuk menyimpan arsip dengan klasifikasi ini.');
+                    }
+
+                    preg_match('/archives\.(\d+)\.classification_id/', $attribute, $matches);
+                    $index = $matches[1] ?? null;
+                    if ($index !== null && $classification && $classification->level === 4) {
+                        $fileType = strtolower(request()->input("archives.{$index}.file_type", ''));
+                        if (in_array($fileType, ['doc', 'docx', 'xls', 'xlsx'])) {
+                            $fail('Dokumen Office (Word/Excel) tidak didukung untuk Tingkat 4. Harap konversi ke PDF.');
+                        }
                     }
                 },
             ],

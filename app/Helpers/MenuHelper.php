@@ -40,8 +40,8 @@ class MenuHelper
         return [
             [
                 'title' => 'Menu Utama',
-                'items' => self::getMainNavItems()
-            ]
+                'items' => self::getMainNavItems(),
+            ],
         ];
     }
 

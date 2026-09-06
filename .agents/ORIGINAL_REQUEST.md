@@ -58,3 +58,35 @@ Tim harus menyusun temuan ke dalam satu dokumen laporan berformat Markdown (`EVA
 - [ ] Laporan memiliki sub-bagian yang secara eksplisit membahas keamanan *rendering* *frontend* (Word/Excel/PDF).
 - [ ] Setiap temuan kelemahan menyertakan nama file dan baris kode sebagai bukti (*evidence*).
 
+## Follow-up — 2026-09-06T04:21:04Z
+
+# Teamwork Project Prompt — Draft
+
+> Status: Ready for launch — awaiting user approval.
+> Goal: Craft prompt → get user approval → delegate to teamwork_preview
+> Requested team: Small focused team
+
+This is a single self-contained audit; keep it small and focused.
+Melakukan pemeriksaan mendalam (audit keamanan dan middleware) pada fitur baru "Unggah Masal (Bulk Upload)" di sistem SIAP-AI, khususnya pada fungsi `bulkStore`, `processAi`, dan *Alpine.js state management*.
+
+Working directory: /Users/brahmanda/Sites/siap-ai
+Integrity mode: demo
+
+## Requirements
+
+### R1. Audit Keamanan Backend & Frontend
+Tim harus meninjau secara mendalam logika penerimaan data pada metode `bulkStore` dan `processAi` di `ArchiveController`, serta implementasi UI pada `form-elements.blade.php`. Fokus utama audit adalah mencegah *bypass* otorisasi (khususnya penyimpanan dokumen Level 4 Sangat Rahasia oleh Admin), kegagalan transaksi DB parsial, kelemahan *throttle/rate-limiting*, dan potensi *Stored/DOM XSS* pada perenderan Javascript sisi klien. Tim tidak diperbolehkan mengubah kode, hanya mengaudit.
+
+### R2. Laporan Evaluasi Keamanan
+Tim harus menyusun temuan ke dalam satu dokumen laporan berformat Markdown (`BULK_EVALUATION_REPORT.md`). Laporan ini harus menjelaskan celah yang ditemukan (jika ada) beserta bukti referensi baris kode yang rentan.
+
+## Acceptance Criteria
+
+### Verifikasi Kelengkapan Laporan (Agent-as-Judge)
+- [ ] Terdapat file `BULK_EVALUATION_REPORT.md` di direktori proyek.
+- [ ] Laporan memiliki sub-bagian yang secara eksplisit membahas kerentanan otorisasi RBAC (Level 4).
+- [ ] Laporan memiliki sub-bagian yang secara eksplisit membahas keamanan transaksi *bulk* dan kerentanan antarmuka.
+- [ ] Setiap temuan kelemahan menyertakan nama file dan baris kode sebagai bukti (*evidence*).
+
+---
+*Next: when approved → delegate via invoke_subagent (see Delegation Protocol)*
