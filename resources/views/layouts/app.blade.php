@@ -21,7 +21,7 @@
     @fluxAppearance
 </head>
 
-<body class="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200 antialiased">
+<body class="min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans text-zinc-800 dark:text-zinc-200 antialiased">
     {{-- Flux Sidebar for Desktop & Mobile --}}
     <flux:sidebar sticky stashable class="bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800">
         <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
@@ -113,6 +113,9 @@
     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
         @csrf
     </form>
+
+    <flux:toast position="top right" />
+    @include('partials.flash-toasts')
 
     @fluxScripts
     @stack('scripts')

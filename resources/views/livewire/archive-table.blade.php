@@ -1,10 +1,4 @@
 <div class="space-y-6">
-    @if (session()->has('success'))
-        <div class="rounded-lg bg-emerald-50 dark:bg-emerald-950/40 p-3 text-sm text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between">
-            <span>{{ session('success') }}</span>
-        </div>
-    @endif
-
     {{-- Top Action Bar --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

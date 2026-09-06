@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap') layer(base);
 @import 'prismjs/themes/prism.min.css';
 @import 'tailwindcss';
 @import '../../vendor/livewire/flux/dist/flux.css';
@@ -15,7 +14,11 @@
 
 @theme {
   --font-*: initial;
-  --font-outfit: Outfit, sans-serif;
+  --font-sans: 'Inter', sans-serif;
+
+  --color-accent: var(--color-green-600);
+  --color-accent-content: var(--color-green-600);
+  --color-accent-foreground: var(--color-white);
 
   --breakpoint-*: initial;
   --breakpoint-2xsm: 375px;
@@ -170,6 +173,14 @@
   --z-index-999999: 999999;
 }
 
+@layer theme {
+  .dark {
+    --color-accent: var(--color-green-600);
+    --color-accent-content: var(--color-green-400);
+    --color-accent-foreground: var(--color-white);
+  }
+}
+
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
@@ -191,7 +202,7 @@
     cursor: pointer;
   }
   body {
-    @apply relative font-normal font-outfit z-1 bg-gray-50 dark:bg-gray-900;
+    @apply relative font-normal font-sans z-1 bg-gray-50 dark:bg-gray-900;
   }
 }
 
