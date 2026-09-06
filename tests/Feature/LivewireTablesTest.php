@@ -9,7 +9,7 @@ use App\Models\Category;
 use App\Models\Classification;
 use App\Models\User;
 use Livewire\Livewire;
-use Spatie\Activitylog\Models\Activity;
+use Spatie\Permission\PermissionRegistrar;
 
 it('renders archive table and filters reactively by search', function () {
     $user = User::factory()->create();
@@ -100,7 +100,7 @@ it('renders audit trail table and switches tabs reactively', function () {
 });
 
 it('renders user table and filters by search', function () {
-    app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+    app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
     $pimpinan = User::factory()->create(['name' => 'dr. Pimpinan Puskesmas', 'email' => 'pimpinan.test@puskesmas.go.id']);
     $pimpinan->assignRole('Pimpinan');

@@ -12,13 +12,18 @@ use Livewire\WithPagination;
 
 class ArchiveTable extends Component
 {
-    use WithPagination, AuthorizesRequests;
+    use AuthorizesRequests, WithPagination;
 
     public string $search = '';
+
     public string $categoryId = '';
+
     public string $classificationId = '';
+
     public string $startDate = '';
+
     public string $endDate = '';
+
     public int $perPage = 10;
 
     protected $queryString = [
@@ -74,8 +79,8 @@ class ArchiveTable extends Component
 
         if (! empty($this->search)) {
             $query->where(function ($q) {
-                $q->where('title', 'like', '%' . $this->search . '%')
-                  ->orWhere('document_number', 'like', '%' . $this->search . '%');
+                $q->where('title', 'like', '%'.$this->search.'%')
+                    ->orWhere('document_number', 'like', '%'.$this->search.'%');
             });
         }
 
@@ -89,8 +94,8 @@ class ArchiveTable extends Component
 
         if (! empty($this->startDate) && ! empty($this->endDate)) {
             $query->whereBetween('created_at', [
-                $this->startDate . ' 00:00:00',
-                $this->endDate . ' 23:59:59',
+                $this->startDate.' 00:00:00',
+                $this->endDate.' 23:59:59',
             ]);
         }
 

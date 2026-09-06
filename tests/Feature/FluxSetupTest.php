@@ -1,14 +1,18 @@
 <?php
 
+use Flux\FluxServiceProvider;
+use Illuminate\Support\Facades\Blade;
+use Livewire\LivewireServiceProvider;
+
 it('registers livewire and flux services in container', function () {
-    expect(class_exists(\Livewire\LivewireServiceProvider::class))->toBeTrue();
-    expect(class_exists(\Flux\FluxServiceProvider::class))->toBeTrue();
+    expect(class_exists(LivewireServiceProvider::class))->toBeTrue();
+    expect(class_exists(FluxServiceProvider::class))->toBeTrue();
 });
 
 it('renders blade directives for flux without error', function () {
-    $renderedAppearance = \Illuminate\Support\Facades\Blade::render('@fluxAppearance');
+    $renderedAppearance = Blade::render('@fluxAppearance');
     expect($renderedAppearance)->toContain('applyAppearance');
 
-    $renderedScripts = \Illuminate\Support\Facades\Blade::render('@fluxScripts');
+    $renderedScripts = Blade::render('@fluxScripts');
     expect($renderedScripts)->toContain('flux');
 });

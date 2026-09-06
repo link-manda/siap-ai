@@ -6,9 +6,10 @@ use App\Models\Classification;
 use App\Models\User;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 beforeEach(function () {
-    app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+    app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
     $this->user = User::factory()->create();
     $this->category = Category::create(['name' => 'Umum']);
@@ -70,4 +71,3 @@ test('archive preview view renders with flux components and watermark', function
     $response->assertSee('Dilihat oleh');
     $response->assertSee('Ringkasan Eksekutif AI');
 });
-

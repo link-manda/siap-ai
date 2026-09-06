@@ -2,7 +2,7 @@
 
 use App\Models\User;
 use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use Spatie\Permission\PermissionRegistrar;
 
 it('renders flux layout shell for authenticated users', function () {
     $user = User::factory()->create();
@@ -18,7 +18,7 @@ it('renders flux layout shell for authenticated users', function () {
 });
 
 it('shows user management menu to pimpinan and hides it from regular admin', function () {
-    app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+    app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
     $pimpinan = User::factory()->create();
     $pimpinan->assignRole('Pimpinan');

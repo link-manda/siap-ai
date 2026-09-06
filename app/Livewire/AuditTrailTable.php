@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\ArchiveLog;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -13,7 +14,9 @@ class AuditTrailTable extends Component
     use WithPagination;
 
     public string $tab = 'document';
+
     public string $search = '';
+
     public int $perPage = 15;
 
     protected $queryString = [
@@ -41,11 +44,11 @@ class AuditTrailTable extends Component
 
             if (! empty($this->search)) {
                 $systemQuery->where(function ($q) {
-                    $q->where('event', 'like', '%' . $this->search . '%')
-                      ->orWhere('description', 'like', '%' . $this->search . '%')
-                      ->orWhereHasMorph('causer', [\App\Models\User::class], function ($sq) {
-                          $sq->where('name', 'like', '%' . $this->search . '%');
-                      });
+                    $q->where('event', 'like', '%'.$this->search.'%')
+                        ->orWhere('description', 'like', '%'.$this->search.'%')
+                        ->orWhereHasMorph('causer', [User::class], function ($sq) {
+                            $sq->where('name', 'like', '%'.$this->search.'%');
+                        });
                 });
             }
 
@@ -62,13 +65,13 @@ class AuditTrailTable extends Component
 
             if (! empty($this->search)) {
                 $docQuery->where(function ($q) {
-                    $q->where('action', 'like', '%' . $this->search . '%')
-                      ->orWhereHas('archive', function ($sq) {
-                          $sq->where('title', 'like', '%' . $this->search . '%');
-                      })
-                      ->orWhereHas('user', function ($sq) {
-                          $sq->where('name', 'like', '%' . $this->search . '%');
-                      });
+                    $q->where('action', 'like', '%'.$this->search.'%')
+                        ->orWhereHas('archive', function ($sq) {
+                            $sq->where('title', 'like', '%'.$this->search.'%');
+                        })
+                        ->orWhereHas('user', function ($sq) {
+                            $sq->where('name', 'like', '%'.$this->search.'%');
+                        });
                 });
             }
 

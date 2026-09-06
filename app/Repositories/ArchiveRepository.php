@@ -7,6 +7,7 @@ use App\Models\Archive;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class ArchiveRepository implements ArchiveRepositoryInterface
 {
@@ -105,7 +106,7 @@ class ArchiveRepository implements ArchiveRepositoryInterface
 
     public function getMonthlyStats(): array
     {
-        $monthExpression = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite'
+        $monthExpression = DB::getDriverName() === 'sqlite'
             ? "CAST(strftime('%m', archives.created_at) AS INTEGER)"
             : 'MONTH(archives.created_at)';
 
