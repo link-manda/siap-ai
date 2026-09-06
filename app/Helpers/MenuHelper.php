@@ -10,22 +10,22 @@ class MenuHelper
     {
         $items = [
             [
-                'icon' => 'dashboard',
+                'icon' => 'home',
                 'name' => 'Dashboard',
                 'path' => '/',
             ],
             [
-                'icon' => 'tables',
+                'icon' => 'folder',
                 'name' => 'Manajemen Arsip',
                 'path' => '/archives',
             ],
             [
-                'icon' => 'forms',
+                'icon' => 'arrow-up-tray',
                 'name' => 'Upload Arsip (AI)',
                 'path' => '/archives/create',
             ],
             [
-                'icon' => 'task',
+                'icon' => 'clipboard-document-list',
                 'name' => 'Audit Trail',
                 'path' => '/audit-trail',
             ],

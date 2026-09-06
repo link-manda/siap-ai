@@ -105,9 +105,13 @@ class ArchiveRepository implements ArchiveRepositoryInterface
 
     public function getMonthlyStats(): array
     {
+        $monthExpression = \Illuminate\Support\Facades\DB::getDriverName() === 'sqlite'
+            ? "CAST(strftime('%m', archives.created_at) AS INTEGER)"
+            : 'MONTH(archives.created_at)';
+
         $stats = $this->getBaseQuery()
             ->whereYear('archives.created_at', date('Y'))
-            ->selectRaw('MONTH(archives.created_at) as month, COUNT(archives.id) as total')
+            ->selectRaw("{$monthExpression} as month, COUNT(archives.id) as total")
             ->groupBy('month')
             ->orderBy('month')
             ->pluck('total', 'month')->toArray();
