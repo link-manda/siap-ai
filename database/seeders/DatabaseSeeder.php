@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@puskesmas.go.id',
             'password' => bcrypt('password'), // Or use static hash
         ]);
-        
+
         $admin->assignRole('Administrator');
 
         // Categories

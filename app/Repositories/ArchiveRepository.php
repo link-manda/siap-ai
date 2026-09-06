@@ -60,7 +60,7 @@ class ArchiveRepository implements ArchiveRepositoryInterface
         $query = Archive::query();
         $user = auth()->user();
 
-        if ($user && !$user->hasRole('Pimpinan')) {
+        if ($user && ! $user->hasRole('Pimpinan')) {
             $query->whereHas('classification', function ($q) {
                 $q->where('level', '<=', 3);
             });

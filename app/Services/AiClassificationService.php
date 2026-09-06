@@ -32,7 +32,7 @@ class AiClassificationService
             'classification_id' => $classificationId,
             'summary' => $response['summary'],
             'ai_confidence_score' => $response['confidence_score'],
-            'ai_model' => 'gpt-4o', // We can capture this dynamically if needed
+            'ai_model' => 'gpt-41', // We can capture this dynamically if needed
         ];
     }
 }

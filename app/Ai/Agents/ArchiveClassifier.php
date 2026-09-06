@@ -11,7 +11,7 @@ use Laravel\Ai\Contracts\HasStructuredOutput;
 use Laravel\Ai\Promptable;
 
 #[Provider('openai-compatible')]
-#[Model('gpt-4o')]
+#[Model('gpt-41')]
 #[Timeout(120)]
 class ArchiveClassifier implements Agent, HasStructuredOutput
 {

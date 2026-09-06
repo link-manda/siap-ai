@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use App\Models\User;
+
 class MenuHelper
 {
     public static function getMainNavItems()
@@ -29,7 +31,7 @@ class MenuHelper
             ],
         ];
 
-        if (auth()->check() && auth()->user()->can('viewAny', \App\Models\User::class)) {
+        if (auth()->check() && auth()->user()->can('viewAny', User::class)) {
             $items[] = [
                 'icon' => 'users',
                 'name' => 'Pengguna & Role',

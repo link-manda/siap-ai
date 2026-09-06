@@ -4,6 +4,7 @@ use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\AuditTrailController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 // Authentication Routes
@@ -37,7 +38,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/audit-trail', [AuditTrailController::class, 'index'])->name('audit.index');
 
     // Users Management
-    Route::resource('users', \App\Http\Controllers\UserController::class)->except(['show']);
+    Route::resource('users', UserController::class)->except(['show']);
 
     // Profile & Setup (placeholders from template)
     Route::get('/profile', function () {

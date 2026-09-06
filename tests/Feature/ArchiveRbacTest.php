@@ -20,7 +20,7 @@ beforeEach(function () {
 
     // Create users
     $this->adminUser = User::factory()->create();
-    
+
     $this->pimpinanUser = User::factory()->create();
     $this->pimpinanUser->assignRole('Pimpinan');
 

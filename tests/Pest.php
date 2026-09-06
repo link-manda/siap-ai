@@ -1,5 +1,6 @@
 <?php
 
+use Database\Seeders\RoleAndPermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -19,7 +20,7 @@ pest()->extend(TestCase::class)
     ->in('Feature');
 
 uses()->beforeEach(function () {
-    $this->seed(\Database\Seeders\RoleAndPermissionSeeder::class);
+    $this->seed(RoleAndPermissionSeeder::class);
 })->in('Feature');
 
 /*

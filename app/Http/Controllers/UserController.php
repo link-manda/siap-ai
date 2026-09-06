@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use App\Services\UserService;
 use App\Repositories\UserRepository;
+use App\Services\UserService;
 use Illuminate\Http\Request;
-use Spatie\Permission\Models\Role;
 use Illuminate\Validation\Rule;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -20,9 +20,10 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
         $users = $this->userRepository->getAllPaginated(15);
+
         return view('pages.users.index', [
             'title' => 'Manajemen Pengguna',
-            'users' => $users
+            'users' => $users,
         ]);
     }
 
@@ -30,9 +31,10 @@ class UserController extends Controller
     {
         $this->authorize('create', User::class);
         $roles = Role::all();
+
         return view('pages.users.create', [
             'title' => 'Tambah Pengguna',
-            'roles' => $roles
+            'roles' => $roles,
         ]);
     }
 
@@ -57,11 +59,11 @@ class UserController extends Controller
         $user = $this->userRepository->findById($id);
         $this->authorize('update', $user);
         $roles = Role::all();
-        
+
         return view('pages.users.edit', [
             'title' => 'Edit Pengguna',
             'user' => $user,
-            'roles' => $roles
+            'roles' => $roles,
         ]);
     }
 
@@ -87,13 +89,13 @@ class UserController extends Controller
     {
         $user = $this->userRepository->findById($id);
         $this->authorize('delete', $user);
-        
+
         if (auth()->id() === $user->id) {
             return redirect()->route('users.index')->with('error', 'Anda tidak bisa menghapus akun Anda sendiri.');
         }
 
         $this->userRepository->delete($user);
-        
+
         return redirect()->route('users.index')->with('success', 'Pengguna berhasil dihapus.');
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ArchiveLog;
+use Spatie\Activitylog\Models\Activity;
 
 class AuditTrailController extends Controller
 {
@@ -10,7 +11,7 @@ class AuditTrailController extends Controller
     {
         $query = ArchiveLog::with(['user', 'archive']);
 
-        if (!auth()->user()->hasRole('Pimpinan')) {
+        if (! auth()->user()->hasRole('Pimpinan')) {
             $query->whereHas('archive.classification', function ($q) {
                 $q->where('level', '<=', 3);
             });
@@ -19,7 +20,7 @@ class AuditTrailController extends Controller
         $logs = $query->latest()->paginate(15, ['*'], 'document_page');
 
         // Fetch System Logs
-        $systemQuery = \Spatie\Activitylog\Models\Activity::with(['causer', 'subject']);
+        $systemQuery = Activity::with(['causer', 'subject']);
         // You might want to filter system logs based on role here too if needed
         $systemLogs = $systemQuery->latest()->paginate(15, ['*'], 'system_page');
 
