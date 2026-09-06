@@ -29,20 +29,8 @@ class ArchiveController extends Controller
 
     public function index(Request $request)
     {
-        $filters = [
-            'category_id' => $request->get('category_id'),
-            'classification_id' => $request->get('classification_id'),
-            'start_date' => $request->get('start_date'),
-            'end_date' => $request->get('end_date'),
-        ];
-
-        $archives = $this->archiveRepository->getAllPaginated(10, $filters);
-        $categories = Category::all();
-
-        return view('pages.tables.basic-tables', [
+        return view('pages.archives.index', [
             'title' => 'Manajemen Arsip',
-            'archives' => $archives,
-            'categories' => $categories,
         ]);
     }
 
