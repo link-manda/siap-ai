@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AiSettingController;
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\AuditTrailController;
 use App\Http\Controllers\AuthController;
@@ -42,6 +43,15 @@ Route::middleware('auth')->group(function () {
 
     // Users Management
     Route::resource('users', UserController::class)->except(['show']);
+
+    // AI Provider Settings (Pimpinan only)
+    Route::middleware('role:Pimpinan')->prefix('settings/ai')->group(function () {
+        Route::get('/', [AiSettingController::class, 'edit'])->name('settings.ai');
+        Route::put('/', [AiSettingController::class, 'update'])->name('settings.ai.update');
+        Route::post('/test', [AiSettingController::class, 'testConnection'])
+            ->name('settings.ai.test')
+            ->middleware('throttle:6,1');
+    });
 
     // Profile & Setup (placeholders from template)
     Route::get('/profile', function () {

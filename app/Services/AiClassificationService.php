@@ -8,13 +8,34 @@ use App\Models\Classification;
 
 class AiClassificationService
 {
+    public function __construct(
+        protected ?AiSettingService $aiSettingService = null
+    ) {
+        $this->aiSettingService = $aiSettingService ?? app(AiSettingService::class);
+    }
+
     /**
      * Process document text and return AI classification results mapped to database IDs.
      */
     public function classifyDocument(string $text): array
     {
-        // For development/Tugas Akhir, we pass the extracted text to the AI agent
-        $response = (new ArchiveClassifier)->prompt("Tolong analisis teks dokumen ini:\n\n<document_text>\n".$text."\n</document_text>");
+        $setting = $this->aiSettingService->getActiveSetting();
+
+        // Apply runtime config overrides if defined in setting
+        if (! empty($setting->base_url)) {
+            config(["ai.providers.{$setting->provider}.url" => $setting->base_url]);
+        }
+        if (! empty($setting->api_key)) {
+            config(["ai.providers.{$setting->provider}.key" => $setting->api_key]);
+        }
+
+        // Pass the extracted text to the AI agent with runtime setting overrides
+        $response = (new ArchiveClassifier)->prompt(
+            "Tolong analisis teks dokumen ini:\n\n<document_text>\n".$text."\n</document_text>",
+            provider: $setting->provider,
+            model: $setting->model,
+            timeout: $setting->timeout ?? 120
+        );
 
         $categoryName = $response['category_name'];
         $classificationName = $response['classification_name'];
@@ -32,7 +53,7 @@ class AiClassificationService
             'classification_id' => $classificationId,
             'summary' => $response['summary'],
             'ai_confidence_score' => $response['confidence_score'],
-            'ai_model' => 'gpt-41', // We can capture this dynamically if needed
+            'ai_model' => $setting->model,
         ];
     }
 }

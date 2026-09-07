@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\AiSetting;
 use App\Models\User;
 
 class MenuHelper
@@ -39,11 +40,25 @@ class MenuHelper
             ];
         }
 
+        if (auth()->check() && auth()->user()->can('viewAny', AiSetting::class)) {
+            $items[] = [
+                'icon' => 'cog-6-tooth',
+                'name' => 'Pengaturan AI',
+                'path' => '/settings/ai',
+            ];
+        }
+
         return $items;
     }
 
     public static function isActive($path)
     {
-        return request()->is(ltrim($path, '/'));
+        $trimmed = ltrim($path, '/');
+
+        if ($trimmed === '') {
+            return request()->is('/');
+        }
+
+        return request()->is($trimmed) || request()->is($trimmed.'/*');
     }
 }
