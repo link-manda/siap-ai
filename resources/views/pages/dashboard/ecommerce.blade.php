@@ -215,10 +215,10 @@
         <flux:card class="p-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xs flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between mb-1">
-                    <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Top Kategori Arsip</h3>
+                    <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">Komposisi Kategori Arsip</h3>
                     <flux:icon icon="tag" class="size-4 text-zinc-400" />
                 </div>
-                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mb-4">5 bidang dokumen terbanyak</p>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mb-4">Top 5 bidang dokumen terbanyak</p>
 
                 <div class="space-y-3.5">
                     @forelse($categoryStats['items'] ?? [] as $cat)

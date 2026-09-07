@@ -149,6 +149,6 @@ it('aggregates ai stats correctly in dashboard payload and renders Zero-JS view'
         ->assertDontSee('ApexCharts')
         ->assertSee('Skor Keyakinan AI')
         ->assertSee('Antrean Verifikasi AI')
-        ->assertSee('Top Kategori Arsip')
+        ->assertSee('Komposisi Kategori Arsip')
         ->assertSee('Tingkat Kerahasiaan Dokumen');
 });
