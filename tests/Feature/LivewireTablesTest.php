@@ -152,3 +152,38 @@ it('filters archives by expired status when filter is set', function () {
         ->assertSee('Expired Document')
         ->assertDontSee('Active Document');
 });
+
+it('filters archives by low confidence score when filter is set', function () {
+    $user = User::factory()->create();
+    $category = Category::create(['name' => 'Umum']);
+    $classification = Classification::create(['name' => 'Biasa', 'level' => 1]);
+
+    $highConfArchive = Archive::create([
+        'title' => 'High Confidence Document',
+        'file_path' => 'private/archives/high.pdf',
+        'file_type' => 'pdf',
+        'category_id' => $category->id,
+        'classification_id' => $classification->id,
+        'uploader_id' => $user->id,
+        'ai_confidence_score' => 95,
+    ]);
+
+    $lowConfArchive = Archive::create([
+        'title' => 'Low Confidence Document',
+        'file_path' => 'private/archives/low.pdf',
+        'file_type' => 'pdf',
+        'category_id' => $category->id,
+        'classification_id' => $classification->id,
+        'uploader_id' => $user->id,
+        'ai_confidence_score' => 55,
+    ]);
+
+    $this->actingAs($user);
+
+    Livewire::test(ArchiveTable::class)
+        ->assertSee('High Confidence Document')
+        ->assertSee('Low Confidence Document')
+        ->set('filter', 'low_confidence')
+        ->assertSee('Low Confidence Document')
+        ->assertDontSee('High Confidence Document');
+});

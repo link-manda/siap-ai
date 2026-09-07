@@ -86,6 +86,8 @@ class ArchiveTable extends Component
 
             if ($this->filter === 'expired') {
                 $query->whereDate('retention_date', '<', now());
+            } elseif ($this->filter === 'low_confidence') {
+                $query->whereNotNull('ai_confidence_score')->where('ai_confidence_score', '<', 70);
             }
 
             if (! empty($this->search)) {
@@ -174,6 +176,8 @@ class ArchiveTable extends Component
 
         if ($this->filter === 'expired') {
             $query->whereDate('retention_date', '<', now());
+        } elseif ($this->filter === 'low_confidence') {
+            $query->whereNotNull('ai_confidence_score')->where('ai_confidence_score', '<', 70);
         }
 
         if (! empty($this->search)) {
