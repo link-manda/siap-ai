@@ -100,6 +100,7 @@ class ArchiveService
             'categoryStats' => $this->archiveRepository->getCategoryStats(),
             'classificationStats' => $this->archiveRepository->getClassificationStats(),
             'monthlyStats' => $this->archiveRepository->getMonthlyStats(),
+            'aiStats' => $this->archiveRepository->getAiStats(),
         ], $this->archiveRepository->getStorageStats());
     }
 }

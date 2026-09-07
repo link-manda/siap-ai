@@ -84,9 +84,19 @@ class ArchiveRepository implements ArchiveRepositoryInterface
             ->groupBy('categories.id', 'categories.name')
             ->get();
 
+        $total = $stats->sum('total');
+        $items = $stats->map(function ($item) use ($total) {
+            return [
+                'name' => $item->category,
+                'total' => (int) $item->total,
+                'percentage' => $total > 0 ? round(($item->total / $total) * 100, 1) : 0,
+            ];
+        })->sortByDesc('total')->values()->take(5)->toArray();
+
         return [
             'labels' => $stats->pluck('category')->toArray(),
             'series' => $stats->pluck('total')->toArray(),
+            'items' => $items,
         ];
     }
 
@@ -152,6 +162,21 @@ class ArchiveRepository implements ArchiveRepositoryInterface
             'active_size' => $activeSize,
             'expired_size' => $expiredSize,
             'trash_size' => $trashSize,
+        ];
+    }
+
+    public function getAiStats(): array
+    {
+        $baseQuery = $this->getBaseQuery();
+
+        $avgScore = $baseQuery->clone()->whereNotNull('ai_confidence_score')->avg('ai_confidence_score');
+        $lowConfidenceCount = $baseQuery->clone()->whereNotNull('ai_confidence_score')->where('ai_confidence_score', '<', 70)->count();
+        $totalProcessed = $baseQuery->clone()->whereNotNull('ai_confidence_score')->count();
+
+        return [
+            'average_confidence' => $avgScore ? (int) round((float) $avgScore) : 0,
+            'low_confidence_count' => (int) $lowConfidenceCount,
+            'total_ai_processed' => (int) $totalProcessed,
         ];
     }
 
