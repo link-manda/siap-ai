@@ -24,31 +24,30 @@
 <body class="min-h-screen bg-zinc-50 dark:bg-zinc-950 font-sans text-zinc-800 dark:text-zinc-200 antialiased">
     {{-- Flux Collapsible Sidebar for Desktop & Mobile --}}
     <flux:sidebar sticky collapsible class="bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800">
-        <div class="flex items-center justify-between gap-2 px-2 py-1">
-            <div class="flex items-center gap-2.5 overflow-hidden">
-                <div class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white font-bold text-sm shadow-sm">
+        <flux:sidebar.header>
+            <flux:sidebar.brand 
+                name="SIAP-AI" 
+                href="{{ route('dashboard') }}"
+            >
+                <div class="flex size-6 items-center justify-center rounded bg-emerald-600 text-white font-bold text-xs shadow-sm">
                     SA
                 </div>
-                <div class="flex flex-col in-data-flux-sidebar-collapsed-desktop:hidden truncate">
-                    <span class="text-sm font-semibold text-zinc-900 dark:text-white leading-tight">SIAP-AI</span>
-                    <span class="text-[11px] text-zinc-500 dark:text-zinc-400">Puskesmas Digital</span>
-                </div>
-            </div>
+            </flux:sidebar.brand>
             <flux:sidebar.collapse />
-        </div>
+        </flux:sidebar.header>
 
         <flux:separator class="my-2" />
 
-        <flux:navlist variant="outline">
+        <flux:sidebar.nav>
             @foreach (\App\Helpers\MenuHelper::getMainNavItems() as $item)
-                <flux:navlist.item 
+                <flux:sidebar.item 
                     :icon="$item['icon']" 
                     :href="$item['path']" 
                     :current="\App\Helpers\MenuHelper::isActive($item['path'])">
                     {{ $item['name'] }}
-                </flux:navlist.item>
+                </flux:sidebar.item>
             @endforeach
-        </flux:navlist>
+        </flux:sidebar.nav>
 
         <flux:spacer />
     </flux:sidebar>
