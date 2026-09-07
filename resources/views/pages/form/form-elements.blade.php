@@ -28,7 +28,7 @@
                             class="w-full text-xs cursor-pointer rounded-lg border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 file:mr-4 file:py-2.5 file:px-4 file:rounded-l-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 text-zinc-700 dark:text-zinc-300 focus:outline-hidden"
                             :disabled="files.length >= 5 || isSaving"
                         />
-                        <p class="mt-2 text-xs text-amber-600 dark:text-amber-400" x-show="files.length >= 5">Batas maksimal 5 berkas telah tercapai.</p>
+                        <p class="mt-2 text-xs text-amber-600 dark:text-amber-400" x-show="files.length >= 5" x-cloak>Batas maksimal 5 berkas telah tercapai.</p>
                     </div>
 
                     <!-- Daftar File -->
@@ -72,7 +72,7 @@
                             </div>
                         </template>
                         
-                        <div x-show="files.length === 0" class="text-center py-6 text-sm text-gray-500 border border-dashed rounded-lg border-gray-300 dark:border-gray-700">
+                        <div x-show="files.length === 0" x-cloak class="text-center py-6 text-sm text-gray-500 border border-dashed rounded-lg border-gray-300 dark:border-gray-700">
                             Belum ada file yang dipilih.
                         </div>
                     </div>
@@ -85,7 +85,7 @@
             <div class="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs h-full flex flex-col">
                 <div class="border-b border-zinc-200 dark:border-zinc-800 px-6 py-4 flex justify-between items-center">
                     <h3 class="text-sm font-semibold text-zinc-900 dark:text-white">2. Edit Detail File</h3>
-                    <span x-show="files.length > 0" class="text-xs font-medium px-2 py-0.5 bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 rounded-full" x-text="`File ${activeIndex + 1} dari ${files.length}`"></span>
+                    <span x-show="files.length > 0" x-cloak class="text-xs font-medium px-2 py-0.5 bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 rounded-full" x-text="`File ${activeIndex + 1} dari ${files.length}`"></span>
                 </div>
                 
                 <div class="p-6 flex-grow">
@@ -131,18 +131,18 @@
                         </div>
                     </template>
                     
-                    <div x-show="files.length === 0" class="h-full flex items-center justify-center text-sm text-gray-400">
+                    <div x-show="files.length === 0" x-cloak class="h-full flex items-center justify-center text-sm text-gray-400">
                         Pilih file di panel kiri untuk diedit.
                     </div>
                 </div>
                 
-                <div class="p-6 border-t border-gray-200 dark:border-gray-800" x-show="files.length > 0">
-                    <div x-show="globalError" class="mb-4 p-3 bg-error-50 text-error-700 rounded-lg text-sm" x-text="globalError"></div>
-                    <button type="button" @click="saveAll()" :disabled="isSaving || hasProcessingFiles() || hasErrorFiles()" class="flex w-full items-center justify-center rounded-lg bg-brand-500 py-2.5 px-4 font-medium text-white hover:bg-brand-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
-                        <svg x-show="isSaving" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <div class="p-6 border-t border-gray-200 dark:border-gray-800" x-show="files.length > 0" x-cloak>
+                    <div x-show="globalError" x-cloak class="mb-4 p-3 bg-error-50 text-error-700 rounded-lg text-sm" x-text="globalError"></div>
+                    <button type="button" @click="saveAll()" :disabled="isSaving || hasProcessingFiles()" class="flex w-full items-center justify-center rounded-lg bg-brand-500 py-2.5 px-4 font-medium text-white hover:bg-brand-600 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                        <svg x-show="isSaving" x-cloak class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                         <span x-text="isSaving ? 'Menyimpan Semua...' : 'Simpan Semua Arsip'"></span>
                     </button>
-                    <p class="mt-2 text-xs text-center text-gray-500" x-show="hasProcessingFiles()">Tunggu hingga semua proses AI selesai.</p>
+                    <p class="mt-2 text-xs text-center text-gray-500" x-show="hasProcessingFiles()" x-cloak>Tunggu hingga semua proses AI selesai.</p>
                 </div>
             </div>
         </div>
@@ -206,11 +206,15 @@
                     if (this.files.length >= 5) break;
                     
                     const id = Math.random().toString(36).substring(7);
+                    
+                    // Validasi batas ukuran 10MB (10.485.760 bytes)
+                    const isOversize = file.size > 10 * 1024 * 1024;
+                    
                     const fileItem = {
                         id: id,
                         file: file,
-                        status: 'pending',
-                        error: null,
+                        status: isOversize ? 'error' : 'pending',
+                        error: isOversize ? 'Gagal: Ukuran berkas melebihi 10MB' : null,
                         data: {
                             title: file.name.split('.').slice(0, -1).join('.'),
                             document_number: '',
@@ -226,7 +230,11 @@
                     };
                     
                     this.files.push(fileItem);
-                    this.processSingleFile(this.files[this.files.length - 1]);
+                    
+                    // Hanya proses ke AI jika status bukan error
+                    if (!isOversize) {
+                        this.processSingleFile(this.files[this.files.length - 1]);
+                    }
                 }
                 
                 if (this.files.length > 0 && this.activeIndex >= this.files.length) {
@@ -293,6 +301,12 @@
 
             async saveAll() {
                 if (this.files.length === 0) return;
+                
+                // Cek jika ada berkas yang berstatus error (misal karena ukuran > 10MB)
+                if (this.hasErrorFiles()) {
+                    this.globalError = 'Terdapat berkas yang bermasalah (warna merah). Harap hapus berkas tersebut dari daftar sebelum menyimpan.';
+                    return;
+                }
                 
                 // Validate
                 for (let i = 0; i < this.files.length; i++) {
