@@ -15,6 +15,72 @@
         </div>
     </div>
 
+    @role('Pimpinan')
+        @php
+            $quotaGB = (float) env('STORAGE_QUOTA_GB', 10);
+            $quotaBytes = $quotaGB * 1024 * 1024 * 1024;
+            
+            $activeSize = $active_size ?? 0;
+            $expiredSize = $expired_size ?? 0;
+            $trashSize = $trash_size ?? 0;
+            $totalSize = $activeSize + $expiredSize + $trashSize;
+
+            $activePct = $quotaBytes > 0 ? ($activeSize / $quotaBytes) * 100 : 0;
+            $expiredPct = $quotaBytes > 0 ? ($expiredSize / $quotaBytes) * 100 : 0;
+            $trashPct = $quotaBytes > 0 ? ($trashSize / $quotaBytes) * 100 : 0;
+
+            $formatBytes = function($bytes) {
+                if ($bytes <= 0) return '0 B';
+                $k = 1024;
+                $sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+                $i = floor(log($bytes) / log($k));
+                return round($bytes / pow($k, $i), 2) . ' ' . $sizes[$i];
+            };
+        @endphp
+        
+        <flux:card class="p-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xs">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                <div>
+                    <flux:heading size="lg">Penggunaan Kapasitas Penyimpanan</flux:heading>
+                    <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Kuota: {{ $formatBytes($quotaBytes) }}</p>
+                </div>
+                <div class="text-left sm:text-right">
+                    <span class="text-2xl font-bold text-zinc-900 dark:text-white">{{ $formatBytes($totalSize) }}</span>
+                    <span class="text-xs text-zinc-500 dark:text-zinc-400 ml-1">terpakai</span>
+                </div>
+            </div>
+
+            {{-- Progress Bar Container --}}
+            <div class="w-full h-4 bg-zinc-100 dark:bg-zinc-800 rounded-full flex overflow-hidden">
+                @if($activePct > 0)
+                    <div class="bg-indigo-500 h-full" style="width: {{ $activePct }}%" title="Aktif: {{ $formatBytes($activeSize) }}"></div>
+                @endif
+                @if($expiredPct > 0)
+                    <a href="{{ route('archives.index', ['filter' => 'expired']) }}" wire:navigate class="bg-amber-400 h-full hover:opacity-80 transition cursor-pointer block" style="width: {{ $expiredPct }}%" title="Kedaluwarsa: {{ $formatBytes($expiredSize) }}"></a>
+                @endif
+                @if($trashPct > 0)
+                    <a href="{{ route('archives.trash') }}" wire:navigate class="bg-red-500 h-full hover:opacity-80 transition cursor-pointer block" style="width: {{ $trashPct }}%" title="Sampah: {{ $formatBytes($trashSize) }}"></a>
+                @endif
+            </div>
+            
+            {{-- Legends --}}
+            <div class="mt-4 flex flex-wrap gap-4 text-xs">
+                <div class="flex items-center gap-1.5">
+                    <div class="size-3 rounded-full bg-indigo-500"></div>
+                    <span class="text-zinc-600 dark:text-zinc-400">Aktif ({{ $formatBytes($activeSize) }})</span>
+                </div>
+                <a href="{{ route('archives.index', ['filter' => 'expired']) }}" wire:navigate class="flex items-center gap-1.5 hover:opacity-80 transition cursor-pointer">
+                    <div class="size-3 rounded-full bg-amber-400"></div>
+                    <span class="text-zinc-600 dark:text-zinc-400">Kedaluwarsa ({{ $formatBytes($expiredSize) }})</span>
+                </a>
+                <a href="{{ route('archives.trash') }}" wire:navigate class="flex items-center gap-1.5 hover:opacity-80 transition cursor-pointer">
+                    <div class="size-3 rounded-full bg-red-500"></div>
+                    <span class="text-zinc-600 dark:text-zinc-400">Sampah ({{ $formatBytes($trashSize) }})</span>
+                </a>
+            </div>
+        </flux:card>
+    @endrole
+
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         {{-- Total Arsip Card --}}
         <flux:card class="flex flex-col justify-between p-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xs">

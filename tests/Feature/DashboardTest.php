@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Services\ArchiveService;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Spatie\Permission\Models\Role;
 
 uses(RefreshDatabase::class);
 
@@ -84,4 +85,27 @@ it('aggregates storage stats correctly in dashboard payload', function () {
 
     // trash_size = 3000
     expect($stats['trash_size'])->toBe(3000);
+});
+
+it('shows storage depletion bar for Pimpinan role and hides it for others', function () {
+    Role::firstOrCreate(['name' => 'Pimpinan']);
+    Role::firstOrCreate(['name' => 'Staf']);
+
+    $pimpinan = User::factory()->create();
+    $pimpinan->assignRole('Pimpinan');
+
+    $staf = User::factory()->create();
+    $staf->assignRole('Staf');
+
+    // Act as Pimpinan
+    $this->actingAs($pimpinan)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertSee('Penggunaan Kapasitas Penyimpanan');
+
+    // Act as Staf
+    $this->actingAs($staf)
+        ->get(route('dashboard'))
+        ->assertOk()
+        ->assertDontSee('Penggunaan Kapasitas Penyimpanan');
 });
