@@ -344,6 +344,7 @@ class ArchiveController extends Controller
     public function trash()
     {
         $archives = Archive::onlyTrashed()->with(['category', 'classification', 'uploader'])->latest('deleted_at')->paginate(10);
+
         return view('pages.archives.trash', compact('archives'));
     }
 
@@ -360,10 +361,15 @@ class ArchiveController extends Controller
     public function forceDestroy($id)
     {
         $archive = Archive::onlyTrashed()->findOrFail($id);
-        
+
         // Hapus fisik berkas asli jika ada
-        if ($archive->file_path && Storage::disk('public')->exists($archive->file_path)) {
-            Storage::disk('public')->delete($archive->file_path);
+        if ($archive->file_path) {
+            if (Storage::disk('public')->exists($archive->file_path)) {
+                Storage::disk('public')->delete($archive->file_path);
+            }
+            if (Storage::disk('local')->exists($archive->file_path)) {
+                Storage::disk('local')->delete($archive->file_path);
+            }
         }
 
         $archive->forceDelete();

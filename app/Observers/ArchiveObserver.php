@@ -30,6 +30,10 @@ class ArchiveObserver
      */
     public function deleted(Archive $archive): void
     {
+        if ($archive->isForceDeleting()) {
+            return;
+        }
+
         $this->logAction($archive, 'DELETE');
     }
 
