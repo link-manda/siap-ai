@@ -97,7 +97,7 @@
                     <tr class="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/75 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 font-semibold uppercase tracking-wider">
                         @role('Pimpinan')
                         <th class="py-3 px-4 w-10">
-                            {{-- Placeholder for master checkbox if needed, kept simple for now --}}
+                            <input type="checkbox" wire:model.live="selectAll" class="rounded-sm border-zinc-300 dark:border-zinc-700 text-indigo-600 focus:ring-indigo-500 dark:bg-zinc-800">
                         </th>
                         @endrole
                         <th class="py-3 px-4">Dokumen</th>

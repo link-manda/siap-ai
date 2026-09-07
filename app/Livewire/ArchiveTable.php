@@ -58,7 +58,48 @@ class ArchiveTable extends Component
     }
 
     public array $selected = [];
+    public bool $selectAll = false;
     public string $deleteReason = '';
+
+    public function updatedSelectAll($value): void
+    {
+        if ($value) {
+            $query = Archive::latest();
+
+            $user = Auth::user();
+            if ($user && ! $user->hasRole('Pimpinan')) {
+                $query->whereHas('classification', function ($q) {
+                    $q->where('level', '<=', 3);
+                });
+            }
+
+            if (! empty($this->search)) {
+                $query->where(function ($q) {
+                    $q->where('title', 'like', '%'.$this->search.'%')
+                        ->orWhere('document_number', 'like', '%'.$this->search.'%');
+                });
+            }
+
+            if (! empty($this->categoryId)) {
+                $query->where('category_id', $this->categoryId);
+            }
+
+            if (! empty($this->classificationId)) {
+                $query->where('classification_id', $this->classificationId);
+            }
+
+            if (! empty($this->startDate) && ! empty($this->endDate)) {
+                $query->whereBetween('created_at', [
+                    $this->startDate.' 00:00:00',
+                    $this->endDate.' 23:59:59',
+                ]);
+            }
+
+            $this->selected = $query->paginate($this->perPage)->pluck('id')->map(fn($id) => (string) $id)->toArray();
+        } else {
+            $this->selected = [];
+        }
+    }
 
     public function confirmDelete($id = null): void
     {
