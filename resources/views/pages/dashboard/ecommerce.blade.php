@@ -8,8 +8,8 @@
             <p class="text-xs text-zinc-500 dark:text-zinc-400">Statistik dan tren pengelolaan arsip digital Puskesmas.</p>
         </div>
         <div class="flex items-center gap-2">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-indigo-700 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-800 rounded-lg">
-                <span class="size-1.5 rounded-full bg-indigo-600 dark:bg-indigo-400 animate-pulse"></span>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-lg">
+                <span class="size-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse"></span>
                 <span>Sistem Aktif</span>
             </span>
         </div>
@@ -53,7 +53,7 @@
             {{-- Progress Bar Container --}}
             <div class="w-full h-4 bg-zinc-100 dark:bg-zinc-800 rounded-full flex overflow-hidden">
                 @if($activePct > 0)
-                    <div class="bg-indigo-500 h-full" style="width: {{ $activePct }}%" title="Aktif: {{ $formatBytes($activeSize) }}"></div>
+                    <div class="bg-emerald-500 h-full" style="width: {{ $activePct }}%" title="Aktif: {{ $formatBytes($activeSize) }}"></div>
                 @endif
                 @if($expiredPct > 0)
                     <a href="{{ route('archives.index', ['filter' => 'expired']) }}" wire:navigate class="bg-amber-400 h-full hover:opacity-80 transition cursor-pointer block" style="width: {{ $expiredPct }}%" title="Kedaluwarsa: {{ $formatBytes($expiredSize) }}"></a>
@@ -66,7 +66,7 @@
             {{-- Legends --}}
             <div class="mt-4 flex flex-wrap gap-4 text-xs">
                 <div class="flex items-center gap-1.5">
-                    <div class="size-3 rounded-full bg-indigo-500"></div>
+                    <div class="size-3 rounded-full bg-emerald-500"></div>
                     <span class="text-zinc-600 dark:text-zinc-400">Aktif ({{ $formatBytes($activeSize) }})</span>
                 </div>
                 <a href="{{ route('archives.index', ['filter' => 'expired']) }}" wire:navigate class="flex items-center gap-1.5 hover:opacity-80 transition cursor-pointer">
@@ -110,7 +110,7 @@
         <flux:card class="flex flex-col justify-between p-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-xs">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Total Arsip Tersimpan</span>
-                <div class="size-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                <div class="size-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                     <flux:icon icon="folder" class="size-4" />
                 </div>
             </div>
@@ -195,7 +195,7 @@
                         </div>
                         
                         {{-- Bar --}}
-                        <div class="w-full max-w-[28px] {{ $val > 0 ? 'bg-indigo-500 hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-500' : 'bg-zinc-100 dark:bg-zinc-800' }} rounded-t transition-all duration-200 cursor-pointer" style="height: {{ $barPct }}%"></div>
+                        <div class="w-full max-w-[28px] {{ $val > 0 ? 'bg-emerald-500 hover:bg-emerald-600 dark:bg-emerald-600 dark:hover:bg-emerald-500' : 'bg-zinc-100 dark:bg-zinc-800' }} rounded-t transition-all duration-200 cursor-pointer" style="height: {{ $barPct }}%"></div>
                         
                         {{-- Month Label --}}
                         <span class="text-[10px] text-zinc-500 dark:text-zinc-400 mt-2 font-medium">{{ $label }}</span>
@@ -206,7 +206,7 @@
             <div class="mt-3 flex items-center justify-between text-[11px] text-zinc-400">
                 <span>Rata-rata: {{ round($totalThisYear / 12, 1) }} dok/bln</span>
                 <span class="flex items-center gap-1.5">
-                    <span class="size-2 rounded-full bg-indigo-500"></span> Dokumen terunggah
+                    <span class="size-2 rounded-full bg-emerald-500"></span> Dokumen terunggah
                 </span>
             </div>
         </flux:card>
@@ -228,7 +228,7 @@
                                 <span class="text-zinc-500 font-mono text-[11px]">{{ $cat['total'] }} ({{ $cat['percentage'] }}%)</span>
                             </div>
                             <div class="w-full h-2 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
-                                <div class="h-full bg-indigo-500 rounded-full" style="width: {{ $cat['percentage'] }}%"></div>
+                                <div class="h-full bg-emerald-500 rounded-full" style="width: {{ $cat['percentage'] }}%"></div>
                             </div>
                         </div>
                     @empty
