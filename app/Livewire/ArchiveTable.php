@@ -113,12 +113,15 @@ class ArchiveTable extends Component
         }
 
         $this->deleteReason = '';
-        $this->dispatch('open-modal', 'delete-reason-modal');
+        \Flux::modal('delete-reason-modal')->show();
     }
 
     public function executeDelete(): void
     {
-        if (empty($this->selected)) return;
+        
+        if (empty($this->selected)) {
+            return;
+        }
 
         // Validasi Alasan
         if (empty(trim($this->deleteReason))) {
@@ -127,6 +130,7 @@ class ArchiveTable extends Component
         }
 
         $archives = Archive::whereIn('id', $this->selected)->get();
+        
         foreach ($archives as $archive) {
             $this->authorize('delete', $archive);
             $archive->delete_reason = trim($this->deleteReason);
@@ -136,7 +140,7 @@ class ArchiveTable extends Component
 
         $this->selected = [];
         $this->deleteReason = '';
-        $this->dispatch('close-modal', 'delete-reason-modal');
+        \Flux::modal('delete-reason-modal')->close();
         $this->dispatch('toast-show', slots: ['text' => 'Arsip berhasil dihapus beserta alasannya!', 'heading' => 'Sukses'], dataset: ['variant' => 'success']);
     }
 

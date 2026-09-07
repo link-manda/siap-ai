@@ -205,7 +205,9 @@
             </div>
 
             <div class="flex justify-end gap-2 mt-4">
-                <flux:button variant="subtle" wire:click="$dispatch('close-modal', 'delete-reason-modal')">Batal</flux:button>
+                <flux:modal.close>
+                    <flux:button variant="subtle">Batal</flux:button>
+                </flux:modal.close>
                 <flux:button variant="danger" wire:click="executeDelete()" wire:loading.attr="disabled">Hapus Arsip</flux:button>
             </div>
         </div>
