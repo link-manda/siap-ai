@@ -1,37 +1,16 @@
 import './bootstrap';
-import Alpine from 'alpinejs';
 import ApexCharts from 'apexcharts';
 import mammoth from 'mammoth/mammoth.browser.js';
 import * as XLSX from 'xlsx';
 import DOMPurify from 'dompurify';
 
-window.Alpine = Alpine;
 window.ApexCharts = ApexCharts;
 window.mammoth = mammoth;
 window.XLSX = XLSX;
 window.DOMPurify = DOMPurify;
 
-// Register Alpine Magic for Flux Appearance (Dark/Light mode)
-Alpine.magic('flux', () => ({
-    get appearance() {
-        return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-    },
-    set appearance(val) {
-        if (window.Flux && typeof window.Flux.applyAppearance === 'function') {
-            window.Flux.applyAppearance(val);
-        } else {
-            if (val === 'dark') {
-                document.documentElement.classList.add('dark');
-                localStorage.setItem('flux.appearance', 'dark');
-            } else {
-                document.documentElement.classList.remove('dark');
-                localStorage.setItem('flux.appearance', 'light');
-            }
-        }
-    }
-}));
 
-Alpine.start();
+
 
 /**
  * SIAP-AI Centralized Flux Toast Web Component & Helper
