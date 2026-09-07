@@ -37,11 +37,11 @@ it('verifies css configuration has inter font and puskesmas green accent theme',
     expect($cssContent)->not->toContain('Outfit');
     expect($cssContent)->toContain("--font-sans: 'Inter', sans-serif;");
 
-    // Puskesmas Green Theme Accent verification
-    expect($cssContent)->toContain('--color-accent: var(--color-green-600);');
-    expect($cssContent)->toContain('--color-accent-content: var(--color-green-600);');
+    // Puskesmas Green/Emerald Theme Accent verification
+    expect($cssContent)->toContain('--color-accent: var(--color-emerald-600);');
+    expect($cssContent)->toContain('--color-accent-content: var(--color-emerald-600);');
     expect($cssContent)->toContain('--color-accent-foreground: var(--color-white);');
-    expect($cssContent)->toContain('--color-accent-content: var(--color-green-400);');
+    expect($cssContent)->toContain('--color-accent-content: var(--color-emerald-400);');
 });
 
 it('renders global flux toast container in both layouts', function () {
@@ -138,8 +138,12 @@ it('dispatches reactive toast-show event when deleting user in livewire user tab
 
     Livewire::actingAs($admin)
         ->test(UserTable::class)
-        ->call('deleteUser', $targetUser->id)
-        ->assertDispatched('toast-show');
+        ->set('userToDeleteId', $targetUser->id)
+        ->call('executeDeleteUser')
+        ->assertDispatched('toast-show', function ($eventName, $params) {
+            return $params['slots']['text'] === 'Pengguna berhasil dihapus.'
+                && $params['dataset']['variant'] === 'success';
+        });
 
     expect(User::find($targetUser->id))->toBeNull();
 });
@@ -153,8 +157,12 @@ it('dispatches persistent danger toast when user attempts self deletion in livew
 
     Livewire::actingAs($admin)
         ->test(UserTable::class)
-        ->call('deleteUser', $admin->id)
-        ->assertDispatched('toast-show');
+        ->set('userToDeleteId', $admin->id)
+        ->call('executeDeleteUser')
+        ->assertDispatched('toast-show', function ($eventName, $params) {
+            return $params['slots']['text'] === 'Anda tidak dapat menghapus akun Anda sendiri.'
+                && $params['dataset']['variant'] === 'danger';
+        });
 
     expect(User::find($admin->id))->not->toBeNull();
 });

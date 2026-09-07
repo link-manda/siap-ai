@@ -58,3 +58,15 @@ it('renders profile page with authenticated user details', function () {
     $response->assertSee('dokter@puskesmas.test');
     $response->assertDontSee('Musharof');
 });
+
+it('renders collapsible sidebar and persistent top header with profile and theme toggle', function () {
+    $user = User::factory()->create(['name' => 'dr. Siti Rahma', 'email' => 'siti@puskesmas.test']);
+
+    $response = $this->actingAs($user)->get(route('dashboard'));
+
+    $response->assertStatus(200);
+    $response->assertSee('data-flux-sidebar', false);
+    $response->assertSee('data-flux-header', false);
+    $response->assertSee('dr. Siti Rahma');
+    $response->assertSee('Sistem Informasi Arsip Puskesmas');
+});
