@@ -119,7 +119,9 @@ it('dispatches reactive toast-show event when deleting archive in livewire archi
 
     Livewire::actingAs($user)
         ->test(ArchiveTable::class)
-        ->call('deleteArchive', $archive->id)
+        ->call('confirmDelete', $archive->id)
+        ->set('deleteReason', 'Testing delete')
+        ->call('executeDelete')
         ->assertDispatched('toast-show');
 
     expect(Archive::find($archive->id))->toBeNull();

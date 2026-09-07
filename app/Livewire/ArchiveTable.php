@@ -57,14 +57,46 @@ class ArchiveTable extends Component
         $this->resetPage();
     }
 
-    public function deleteArchive(int $id): void
-    {
-        $archive = Archive::findOrFail($id);
-        $this->authorize('delete', $archive);
+    public array $selected = [];
+    public string $deleteReason = '';
 
-        $archive->delete();
-        session()->flash('success', 'Arsip berhasil dihapus!');
-        $this->dispatch('toast-show', slots: ['text' => 'Arsip berhasil dihapus!', 'heading' => 'Sukses'], dataset: ['variant' => 'success'], duration: 5000);
+    public function confirmDelete($id = null): void
+    {
+        if ($id) {
+            $this->selected = [$id];
+        }
+
+        if (empty($this->selected)) {
+            $this->dispatch('toast-show', slots: ['text' => 'Pilih minimal satu arsip untuk dihapus.'], dataset: ['variant' => 'warning']);
+            return;
+        }
+
+        $this->deleteReason = '';
+        $this->dispatch('open-modal', 'delete-reason-modal');
+    }
+
+    public function executeDelete(): void
+    {
+        if (empty($this->selected)) return;
+
+        // Validasi Alasan
+        if (empty(trim($this->deleteReason))) {
+            $this->addError('deleteReason', 'Alasan penghapusan wajib diisi.');
+            return;
+        }
+
+        $archives = Archive::whereIn('id', $this->selected)->get();
+        foreach ($archives as $archive) {
+            $this->authorize('delete', $archive);
+            $archive->delete_reason = trim($this->deleteReason);
+            $archive->save();
+            $archive->delete();
+        }
+
+        $this->selected = [];
+        $this->deleteReason = '';
+        $this->dispatch('close-modal', 'delete-reason-modal');
+        $this->dispatch('toast-show', slots: ['text' => 'Arsip berhasil dihapus beserta alasannya!', 'heading' => 'Sukses'], dataset: ['variant' => 'success']);
     }
 
     public function render()

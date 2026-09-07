@@ -22,6 +22,9 @@ Route::middleware('auth')->group(function () {
     // Archives Routes
     Route::prefix('archives')->name('archives.')->group(function () {
         Route::get('/', [ArchiveController::class, 'index'])->name('index');
+        Route::get('/trash', [ArchiveController::class, 'trash'])->name('trash')->middleware('role:Pimpinan');
+        Route::post('/{id}/restore', [ArchiveController::class, 'restore'])->name('restore')->middleware('role:Pimpinan');
+        Route::delete('/{id}/force', [ArchiveController::class, 'forceDestroy'])->name('force-destroy')->middleware('role:Pimpinan');
         Route::get('/export/excel', [ArchiveController::class, 'exportExcel'])->name('export.excel');
         Route::get('/export/pdf', [ArchiveController::class, 'exportPdf'])->name('export.pdf');
         Route::get('/create', [ArchiveController::class, 'create'])->name('create');

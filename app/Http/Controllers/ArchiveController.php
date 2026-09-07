@@ -321,7 +321,7 @@ class ArchiveController extends Controller
         return view('pages.archives.preview', compact('archive'));
     }
 
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
         $archive = $this->archiveRepository->findById($id);
 
@@ -331,9 +331,44 @@ class ArchiveController extends Controller
 
         $this->authorize('delete', $archive);
 
-        $archive->delete(); // This triggers the observer's "deleted" event for soft deletes
+        if ($request->has('delete_reason')) {
+            $archive->delete_reason = $request->delete_reason;
+            $archive->save();
+        }
+
+        $archive->delete();
 
         return redirect()->route('archives.index')->with('success', 'Arsip berhasil dihapus!');
+    }
+
+    public function trash()
+    {
+        $archives = Archive::onlyTrashed()->with(['category', 'classification', 'uploader'])->latest('deleted_at')->paginate(10);
+        return view('pages.archives.trash', compact('archives'));
+    }
+
+    public function restore($id)
+    {
+        $archive = Archive::onlyTrashed()->findOrFail($id);
+        $archive->delete_reason = null;
+        $archive->save();
+        $archive->restore();
+
+        return redirect()->route('archives.trash')->with('success', 'Arsip berhasil dikembalikan!');
+    }
+
+    public function forceDestroy($id)
+    {
+        $archive = Archive::onlyTrashed()->findOrFail($id);
+        
+        // Hapus fisik berkas asli jika ada
+        if ($archive->file_path && Storage::disk('public')->exists($archive->file_path)) {
+            Storage::disk('public')->delete($archive->file_path);
+        }
+
+        $archive->forceDelete();
+
+        return redirect()->route('archives.trash')->with('success', 'Arsip berhasil dihapus permanen!');
     }
 
     public function exportExcel(Request $request, ReportExportService $exportService)

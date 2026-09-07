@@ -35,6 +35,7 @@ class Archive extends Model
         'summary',
         'ai_model',
         'ai_confidence_score',
+        'delete_reason',
     ];
 
     protected function casts(): array
