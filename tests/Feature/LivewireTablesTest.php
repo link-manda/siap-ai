@@ -117,3 +117,38 @@ it('renders user table and filters by search', function () {
         ->assertSee('Staff Administrasi')
         ->assertDontSee('dr. Pimpinan Puskesmas');
 });
+
+it('filters archives by expired status when filter is set', function () {
+    $user = User::factory()->create();
+    $category = Category::create(['name' => 'Umum']);
+    $classification = Classification::create(['name' => 'Biasa', 'level' => 1]);
+
+    $activeArchive = Archive::create([
+        'title' => 'Active Document',
+        'file_path' => 'private/archives/active.pdf',
+        'file_type' => 'pdf',
+        'category_id' => $category->id,
+        'classification_id' => $classification->id,
+        'uploader_id' => $user->id,
+        'retention_date' => now()->addDays(10),
+    ]);
+
+    $expiredArchive = Archive::create([
+        'title' => 'Expired Document',
+        'file_path' => 'private/archives/expired.pdf',
+        'file_type' => 'pdf',
+        'category_id' => $category->id,
+        'classification_id' => $classification->id,
+        'uploader_id' => $user->id,
+        'retention_date' => now()->subDays(10),
+    ]);
+
+    $this->actingAs($user);
+
+    Livewire::test(ArchiveTable::class)
+        ->assertSee('Active Document')
+        ->assertSee('Expired Document')
+        ->set('filter', 'expired')
+        ->assertSee('Expired Document')
+        ->assertDontSee('Active Document');
+});

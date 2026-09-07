@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Classification;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -19,6 +20,9 @@ class ArchiveTable extends Component
     public string $categoryId = '';
 
     public string $classificationId = '';
+
+    #[Url]
+    public string $filter = '';
 
     public string $startDate = '';
 
@@ -47,6 +51,11 @@ class ArchiveTable extends Component
         $this->resetPage();
     }
 
+    public function updatingFilter(): void
+    {
+        $this->resetPage();
+    }
+
     public function updatingStartDate(): void
     {
         $this->resetPage();
@@ -58,7 +67,9 @@ class ArchiveTable extends Component
     }
 
     public array $selected = [];
+
     public bool $selectAll = false;
+
     public string $deleteReason = '';
 
     public function updatedSelectAll($value): void
@@ -71,6 +82,10 @@ class ArchiveTable extends Component
                 $query->whereHas('classification', function ($q) {
                     $q->where('level', '<=', 3);
                 });
+            }
+
+            if ($this->filter === 'expired') {
+                $query->whereDate('retention_date', '<', now());
             }
 
             if (! empty($this->search)) {
@@ -95,7 +110,7 @@ class ArchiveTable extends Component
                 ]);
             }
 
-            $this->selected = $query->paginate($this->perPage)->pluck('id')->map(fn($id) => (string) $id)->toArray();
+            $this->selected = $query->paginate($this->perPage)->pluck('id')->map(fn ($id) => (string) $id)->toArray();
         } else {
             $this->selected = [];
         }
@@ -109,6 +124,7 @@ class ArchiveTable extends Component
 
         if (empty($this->selected)) {
             $this->dispatch('toast-show', slots: ['text' => 'Pilih minimal satu arsip untuk dihapus.'], dataset: ['variant' => 'warning']);
+
             return;
         }
 
@@ -118,7 +134,7 @@ class ArchiveTable extends Component
 
     public function executeDelete(): void
     {
-        
+
         if (empty($this->selected)) {
             return;
         }
@@ -126,11 +142,12 @@ class ArchiveTable extends Component
         // Validasi Alasan
         if (empty(trim($this->deleteReason))) {
             $this->addError('deleteReason', 'Alasan penghapusan wajib diisi.');
+
             return;
         }
 
         $archives = Archive::whereIn('id', $this->selected)->get();
-        
+
         foreach ($archives as $archive) {
             $this->authorize('delete', $archive);
             $archive->delete_reason = trim($this->deleteReason);
@@ -153,6 +170,10 @@ class ArchiveTable extends Component
             $query->whereHas('classification', function ($q) {
                 $q->where('level', '<=', 3);
             });
+        }
+
+        if ($this->filter === 'expired') {
+            $query->whereDate('retention_date', '<', now());
         }
 
         if (! empty($this->search)) {
