@@ -95,11 +95,11 @@ class ArchiveService
 
     public function getDashboardStats(): array
     {
-        return [
+        return array_merge([
             'totalArchives' => $this->archiveRepository->countTotal(),
             'categoryStats' => $this->archiveRepository->getCategoryStats(),
             'classificationStats' => $this->archiveRepository->getClassificationStats(),
             'monthlyStats' => $this->archiveRepository->getMonthlyStats(),
-        ];
+        ], $this->archiveRepository->getStorageStats());
     }
 }

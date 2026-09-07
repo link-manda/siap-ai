@@ -26,5 +26,7 @@ interface ArchiveRepositoryInterface
 
     public function getMonthlyStats(): array;
 
+    public function getStorageStats(): array;
+
     public function getAllForExport(array $filters = []): Collection;
 }

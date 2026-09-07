@@ -130,6 +130,31 @@ class ArchiveRepository implements ArchiveRepositoryInterface
         ];
     }
 
+    public function getStorageStats(): array
+    {
+        $today = Carbon::today();
+
+        $activeSize = (int) $this->getBaseQuery()
+            ->where(function ($query) use ($today) {
+                $query->whereNull('retention_date')
+                    ->orWhere('retention_date', '>=', $today);
+            })
+            ->sum('file_size');
+
+        $expiredSize = (int) $this->getBaseQuery()
+            ->whereNotNull('retention_date')
+            ->where('retention_date', '<', $today)
+            ->sum('file_size');
+
+        $trashSize = (int) Archive::onlyTrashed()->sum('file_size');
+
+        return [
+            'active_size' => $activeSize,
+            'expired_size' => $expiredSize,
+            'trash_size' => $trashSize,
+        ];
+    }
+
     public function getAllForExport(array $filters = []): Collection
     {
         $query = $this->getBaseQuery()->with(['category', 'classification', 'uploader']);
