@@ -109,3 +109,46 @@ it('shows storage depletion bar for Pimpinan role and hides it for others', func
         ->assertOk()
         ->assertDontSee('Penggunaan Kapasitas Penyimpanan');
 });
+
+it('aggregates ai stats correctly in dashboard payload and renders Zero-JS view', function () {
+    Archive::create([
+        'category_id' => $this->category->id,
+        'classification_id' => $this->classification->id,
+        'uploaded_by' => $this->user->id,
+        'title' => 'AI High Doc',
+        'file_path' => 'dummy/ai1.pdf',
+        'file_type' => 'pdf',
+        'file_size' => 1000,
+        'ai_confidence_score' => 90,
+    ]);
+
+    Archive::create([
+        'category_id' => $this->category->id,
+        'classification_id' => $this->classification->id,
+        'uploaded_by' => $this->user->id,
+        'title' => 'AI Low Doc',
+        'file_path' => 'dummy/ai2.pdf',
+        'file_type' => 'pdf',
+        'file_size' => 1000,
+        'ai_confidence_score' => 50,
+    ]);
+
+    $service = app(ArchiveService::class);
+    $this->actingAs($this->user);
+
+    $stats = $service->getDashboardStats();
+
+    expect($stats)->toHaveKey('aiStats');
+    expect($stats['aiStats']['average_confidence'])->toBe(70);
+    expect($stats['aiStats']['low_confidence_count'])->toBe(1);
+    expect($stats['aiStats']['total_ai_processed'])->toBe(2);
+
+    // Test View rendering
+    $this->get(route('dashboard'))
+        ->assertOk()
+        ->assertDontSee('ApexCharts')
+        ->assertSee('Skor Keyakinan AI')
+        ->assertSee('Antrean Verifikasi AI')
+        ->assertSee('Top Kategori Arsip')
+        ->assertSee('Tingkat Kerahasiaan Dokumen');
+});
