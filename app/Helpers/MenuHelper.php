@@ -25,6 +25,9 @@ class MenuHelper
                 'name' => 'Upload Arsip (AI)',
                 'path' => '/archives/create',
             ],
+        ];
+
+        $adminItems = [
             [
                 'icon' => 'clipboard-document-list',
                 'name' => 'Audit Trail',
@@ -33,7 +36,7 @@ class MenuHelper
         ];
 
         if (auth()->check() && auth()->user()->can('viewAny', User::class)) {
-            $items[] = [
+            $adminItems[] = [
                 'icon' => 'users',
                 'name' => 'Pengguna & Role',
                 'path' => '/users',
@@ -41,10 +44,18 @@ class MenuHelper
         }
 
         if (auth()->check() && auth()->user()->can('viewAny', AiSetting::class)) {
-            $items[] = [
+            $adminItems[] = [
                 'icon' => 'cog-6-tooth',
                 'name' => 'Pengaturan AI',
                 'path' => '/settings/ai',
+            ];
+        }
+
+        if (! empty($adminItems)) {
+            $items[] = [
+                'group' => 'Administrator',
+                'icon' => 'shield-check', // Optional icon if needed
+                'items' => $adminItems,
             ];
         }
 
@@ -57,6 +68,11 @@ class MenuHelper
 
         if ($trimmed === '') {
             return request()->is('/');
+        }
+
+        // Pengecualian eksklusif agar Manajemen Arsip tidak menyala saat di menu Upload Arsip (AI)
+        if ($trimmed === 'archives' && request()->is('archives/create')) {
+            return false;
         }
 
         return request()->is($trimmed) || request()->is($trimmed.'/*');

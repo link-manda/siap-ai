@@ -40,12 +40,25 @@
 
         <flux:sidebar.nav>
             @foreach (\App\Helpers\MenuHelper::getMainNavItems() as $item)
-                <flux:sidebar.item 
-                    :icon="$item['icon']" 
-                    :href="$item['path']" 
-                    :current="\App\Helpers\MenuHelper::isActive($item['path'])">
-                    {{ $item['name'] }}
-                </flux:sidebar.item>
+                @if(isset($item['group']))
+                    <flux:sidebar.group expandable :heading="$item['group']" expanded>
+                        @foreach($item['items'] as $subItem)
+                            <flux:sidebar.item 
+                                :icon="$subItem['icon']" 
+                                :href="$subItem['path']" 
+                                :current="\App\Helpers\MenuHelper::isActive($subItem['path'])">
+                                {{ $subItem['name'] }}
+                            </flux:sidebar.item>
+                        @endforeach
+                    </flux:sidebar.group>
+                @else
+                    <flux:sidebar.item 
+                        :icon="$item['icon']" 
+                        :href="$item['path']" 
+                        :current="\App\Helpers\MenuHelper::isActive($item['path'])">
+                        {{ $item['name'] }}
+                    </flux:sidebar.item>
+                @endif
             @endforeach
         </flux:sidebar.nav>
 

@@ -216,14 +216,18 @@ it('displays pengaturan ai in sidebar menu only for pimpinan', function () {
 
     // As Pimpinan
     $this->actingAs($pimpinan);
-    $pimpinanNav = MenuHelper::getMainNavItems();
-    $hasAiMenuPimpinan = collect($pimpinanNav)->contains('name', 'Pengaturan AI');
+    $pimpinanNav = collect(MenuHelper::getMainNavItems())->flatMap(function ($item) {
+        return isset($item['group']) ? $item['items'] : [$item];
+    });
+    $hasAiMenuPimpinan = $pimpinanNav->contains('name', 'Pengaturan AI');
     expect($hasAiMenuPimpinan)->toBeTrue();
 
     // As Administrator
     $this->actingAs($admin);
-    $adminNav = MenuHelper::getMainNavItems();
-    $hasAiMenuAdmin = collect($adminNav)->contains('name', 'Pengaturan AI');
+    $adminNav = collect(MenuHelper::getMainNavItems())->flatMap(function ($item) {
+        return isset($item['group']) ? $item['items'] : [$item];
+    });
+    $hasAiMenuAdmin = $adminNav->contains('name', 'Pengaturan AI');
     expect($hasAiMenuAdmin)->toBeFalse();
 });
 
