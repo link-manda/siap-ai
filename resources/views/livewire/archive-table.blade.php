@@ -27,7 +27,7 @@
                 <flux:icon icon="document-text" class="size-3.5" />
                 <span>Export PDF</span>
             </a>
-            <a href="{{ route('archives.create') }}" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-sm transition">
+            <a href="{{ route('archives.create') }}" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg shadow-sm transition">
                 <flux:icon icon="plus" class="size-3.5" />
                 <span>Upload Arsip Baru</span>
             </a>
@@ -43,20 +43,20 @@
                     <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-zinc-400">
                         <flux:icon icon="magnifying-glass" class="size-3.5" />
                     </div>
-                    <input 
-                        type="text" 
-                        wire:model.live.debounce.300ms="search" 
-                        placeholder="Cari judul atau nomor..." 
-                        class="w-full text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 pl-9 pr-3 py-2 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
+                    <input
+                        type="text"
+                        wire:model.live.debounce.300ms="search"
+                        placeholder="Cari judul atau nomor..."
+                        class="w-full text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 pl-9 pr-3 py-2 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-hidden focus:ring-1 focus:ring-emerald-500"
                     >
                 </div>
             </div>
 
             <div>
                 <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Kategori</label>
-                <select 
-                    wire:model.live="categoryId" 
-                    class="w-full text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-indigo-500">
+                <select
+                    wire:model.live="categoryId"
+                    class="w-full text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-emerald-500">
                     <option value="">Semua Kategori</option>
                     @foreach ($categories as $cat)
                         <option value="{{ $cat->id }}">{{ $cat->name }}</option>
@@ -66,9 +66,9 @@
 
             <div>
                 <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Level Kerahasiaan</label>
-                <select 
-                    wire:model.live="classificationId" 
-                    class="w-full text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-indigo-500">
+                <select
+                    wire:model.live="classificationId"
+                    class="w-full text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-emerald-500">
                     <option value="">Semua Tingkat</option>
                     @foreach ($classifications as $cls)
                         <option value="{{ $cls->id }}">{{ $cls->name }} (Level {{ $cls->level }})</option>
@@ -78,9 +78,9 @@
 
             <div>
                 <label class="block text-xs font-medium text-zinc-600 dark:text-zinc-400 mb-1">Tampilkan per halaman</label>
-                <select 
-                    wire:model.live="perPage" 
-                    class="w-full text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-indigo-500">
+                <select
+                    wire:model.live="perPage"
+                    class="w-full text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-emerald-500">
                     <option value="10">10 data</option>
                     <option value="25">25 data</option>
                     <option value="50">50 data</option>
@@ -97,7 +97,7 @@
                     <tr class="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/75 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 font-semibold uppercase tracking-wider">
                         @role('Pimpinan')
                         <th class="py-3 px-4 w-10">
-                            <input type="checkbox" wire:model.live="selectAll" class="rounded-sm border-zinc-300 dark:border-zinc-700 text-indigo-600 focus:ring-indigo-500 dark:bg-zinc-800">
+                            <input type="checkbox" wire:model.live="selectAll" class="rounded-sm border-zinc-300 dark:border-zinc-700 text-emerald-600 focus:ring-emerald-500 dark:bg-zinc-800">
                         </th>
                         @endrole
                         <th class="py-3 px-4">Dokumen</th>
@@ -110,15 +110,32 @@
                 </thead>
                 <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800/60">
                     @forelse ($archives as $archive)
+                        <tbody x-data="{ expanded: false }" class="border-b border-zinc-100 dark:border-zinc-800/60">
                         <tr class="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/30 transition">
                             @role('Pimpinan')
                             <td class="py-3 px-4">
-                                <input type="checkbox" wire:model.live="selected" value="{{ $archive->id }}" class="rounded-sm border-zinc-300 dark:border-zinc-700 text-indigo-600 focus:ring-indigo-500 dark:bg-zinc-800">
+                                <input type="checkbox" wire:model.live="selected" value="{{ $archive->id }}" class="rounded-sm border-zinc-300 dark:border-zinc-700 text-emerald-600 focus:ring-emerald-500 dark:bg-zinc-800">
                             </td>
                             @endrole
                             <td class="py-3 px-4">
-                                <div class="font-medium text-zinc-900 dark:text-white">{{ $archive->title }}</div>
-                                <div class="text-[11px] text-zinc-400 dark:text-zinc-500 font-mono mt-0.5">{{ $archive->document_number ?? '-' }}</div>
+                                <div class="flex items-center gap-2">
+                                    @if($archive->attachments->count() > 0 && $isExplorer)
+                                        <button @click="expanded = !expanded" type="button" class="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded text-zinc-400 hover:text-emerald-600 transition-colors">
+                                            <flux:icon icon="chevron-right" class="size-3.5 transition-transform" x-bind:class="expanded ? 'rotate-90' : ''" />
+                                        </button>
+                                    @endif
+                                    <div>
+                                        <div class="font-medium text-zinc-900 dark:text-white">{{ $archive->title }}</div>
+                                        <div class="text-[11px] text-zinc-400 dark:text-zinc-500 font-mono mt-0.5 flex items-center gap-2">
+                                            {{ $archive->document_number ?? '-' }}
+                                            @if($archive->attachments->count() > 0 && !$isExplorer)
+                                                <span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded-sm" title="{{ $archive->attachments->count() }} Lampiran">
+                                                    <flux:icon icon="paper-clip" class="size-3" /> {{ $archive->attachments->count() }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                             <td class="py-3 px-4 text-zinc-600 dark:text-zinc-300">
                                 {{ $archive->category->name ?? '-' }}
@@ -145,28 +162,55 @@
                             </td>
                             <td class="py-3 px-4 text-end">
                                 <div class="inline-flex items-center gap-1.5 justify-end">
-                                    <a 
-                                        href="{{ route('archives.preview', $archive->id) }}" 
-                                        title="Pratinjau Dokumen" 
-                                        class="p-1.5 text-zinc-500 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition">
+                                    <a
+                                        href="{{ route('archives.preview', $archive->id) }}"
+                                        title="Pratinjau Dokumen"
+                                        class="p-1.5 text-zinc-500 hover:text-emerald-600 dark:text-zinc-400 dark:hover:text-emerald-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition">
                                         <flux:icon icon="eye" class="size-4" />
                                     </a>
-                                    <a 
-                                        href="{{ route('archives.download', $archive->id) }}" 
-                                        title="Unduh File" 
+                                    <a
+                                        href="{{ route('archives.download', $archive->id) }}"
+                                        title="Unduh File"
                                         class="p-1.5 text-zinc-500 hover:text-emerald-600 dark:text-zinc-400 dark:hover:text-emerald-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition">
                                         <flux:icon icon="arrow-down-tray" class="size-4" />
                                     </a>
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         wire:click="confirmDelete({{ $archive->id }})"
-                                        title="Hapus Arsip" 
+                                        title="Hapus Arsip"
                                         class="p-1.5 text-zinc-500 hover:text-rose-600 dark:text-zinc-400 dark:hover:text-rose-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition">
                                         <flux:icon icon="trash" class="size-4" />
                                     </button>
                                 </div>
                             </td>
                         </tr>
+                        
+                        {{-- Expandable Child Row --}}
+                        <tr x-show="expanded" x-cloak class="bg-zinc-50/50 dark:bg-zinc-800/10">
+                            <td colspan="{{ auth()->user()->hasRole('Pimpinan') ? 7 : 6 }}" class="p-0 border-t border-zinc-100 dark:border-zinc-800">
+                                <div class="pl-12 pr-4 py-3 text-xs text-zinc-600 dark:text-zinc-400">
+                                    <div class="font-medium mb-2 flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+                                        <flux:icon icon="paper-clip" class="size-3" />
+                                        Lampiran Pendukung
+                                    </div>
+                                    <ul class="space-y-1.5">
+                                        @foreach($archive->attachments as $attachment)
+                                            <li class="flex items-center justify-between p-2 rounded-md hover:bg-white dark:hover:bg-zinc-800 border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700 transition">
+                                                <div class="flex items-center gap-2 truncate">
+                                                    <flux:icon icon="document" class="size-4 text-sky-500 shrink-0" />
+                                                    <span class="truncate">{{ $attachment->file_name }}</span>
+                                                    <span class="text-[10px] text-zinc-400">({{ \Illuminate\Support\Number::fileSize($attachment->file_size) }})</span>
+                                                </div>
+                                                <div class="shrink-0 pl-4">
+                                                    <a href="{{ route('archives.preview', $archive->id) }}?attachment={{ $attachment->id }}" class="text-emerald-600 hover:underline">Lihat</a>
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
                     @empty
                         <tr>
                             <td colspan="{{ auth()->user()->hasRole('Pimpinan') ? 7 : 6 }}" class="py-8 text-center text-zinc-400 dark:text-zinc-500">
@@ -190,16 +234,25 @@
     <flux:modal name="delete-reason-modal" class="md:w-96">
         <div class="space-y-4">
             <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Konfirmasi Penghapusan</h2>
+            
+            @if($attachmentCountToDelete > 0)
+                <div class="bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 rounded-lg p-3">
+                    <p class="text-sm text-rose-700 dark:text-rose-400 font-medium">
+                        Arsip ini memiliki {{ $attachmentCountToDelete }} lampiran pendukung. Memindahkan arsip ini ke tempat sampah juga akan ikut memindahkan seluruh lampiran tersebut. Lanjutkan?
+                    </p>
+                </div>
+            @endif
+
             <p class="text-sm text-zinc-600 dark:text-zinc-400">
                 Silakan masukkan alasan penghapusan arsip ini. Alasan ini akan tercatat dalam riwayat (Trash).
             </p>
 
             <div>
                 <label class="block text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-1">Alasan Hapus</label>
-                <textarea 
-                    wire:model="deleteReason" 
-                    rows="3" 
-                    class="w-full text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-indigo-500"
+                <textarea
+                    wire:model="deleteReason"
+                    rows="3"
+                    class="w-full text-sm rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-emerald-500"
                     placeholder="Contoh: Dokumen ganda, sudah kedaluwarsa..."></textarea>
                 @error('deleteReason') <span class="text-xs text-rose-500 mt-1 block">{{ $message }}</span> @enderror
             </div>

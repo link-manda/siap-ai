@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Classification;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -20,6 +21,10 @@ class ArchiveTable extends Component
     public string $categoryId = '';
 
     public string $classificationId = '';
+
+    public string $activeYear = '';
+
+    public bool $isExplorer = false;
 
     #[Url]
     public string $filter = '';
@@ -35,6 +40,15 @@ class ArchiveTable extends Component
         'categoryId' => ['except' => ''],
         'classificationId' => ['except' => ''],
     ];
+
+    #[On('explorer-filter-updated')]
+    public function updateFromExplorer($filters)
+    {
+        $this->categoryId = $filters['categoryId'] ?? '';
+        $this->classificationId = $filters['classificationId'] ?? '';
+        $this->activeYear = $filters['year'] ?? '';
+        $this->resetPage();
+    }
 
     public function updatingSearch(): void
     {
@@ -72,6 +86,8 @@ class ArchiveTable extends Component
 
     public string $deleteReason = '';
 
+    public int $attachmentCountToDelete = 0;
+
     public function updatedSelectAll($value): void
     {
         if ($value) {
@@ -99,6 +115,10 @@ class ArchiveTable extends Component
 
             if (! empty($this->categoryId)) {
                 $query->where('category_id', $this->categoryId);
+            }
+
+            if (! empty($this->activeYear)) {
+                $query->whereYear('created_at', $this->activeYear);
             }
 
             if (! empty($this->classificationId)) {
@@ -129,6 +149,11 @@ class ArchiveTable extends Component
 
             return;
         }
+
+        $this->attachmentCountToDelete = Archive::whereIn('id', $this->selected)
+            ->withCount('attachments')
+            ->get()
+            ->sum('attachments_count');
 
         $this->deleteReason = '';
         \Flux::modal('delete-reason-modal')->show();
@@ -165,7 +190,7 @@ class ArchiveTable extends Component
 
     public function render()
     {
-        $query = Archive::with(['category', 'classification', 'uploader'])->latest();
+        $query = Archive::with(['category', 'classification', 'uploader', 'attachments'])->latest();
 
         $user = Auth::user();
         if ($user && ! $user->hasRole('Pimpinan')) {
@@ -189,6 +214,10 @@ class ArchiveTable extends Component
 
         if (! empty($this->categoryId)) {
             $query->where('category_id', $this->categoryId);
+        }
+
+        if (! empty($this->activeYear)) {
+            $query->whereYear('created_at', $this->activeYear);
         }
 
         if (! empty($this->classificationId)) {
