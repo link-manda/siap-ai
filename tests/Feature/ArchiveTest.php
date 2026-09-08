@@ -43,6 +43,93 @@ it('processes uploaded document with AI and returns structured data', function (
     Storage::disk('local')->assertExists($response->json('data.file_path'));
 });
 
+it('normalizes AI confidence score from 0-1 scale to 0-100 integer scale', function () {
+    Storage::fake('local');
+    $file = UploadedFile::fake()->create('document.pdf', 100, 'application/pdf');
+
+    // Simulate AI returning a float on 0-1 scale (e.g. 0.90 = 90%)
+    $fakeResponse = [
+        'category_name' => 'Kesehatan',
+        'classification_name' => 'Biasa',
+        'summary' => 'Dokumen kesehatan.',
+        'confidence_score' => 0.90,
+    ];
+    ArchiveClassifier::fake([$fakeResponse]);
+
+    $response = $this->actingAs($this->user)
+        ->postJson(route('archives.process-ai'), [
+            'document' => $file,
+        ]);
+
+    // 0.90 from AI should be normalized to 90, NOT truncated to 0
+    $response->assertOk()
+        ->assertJsonPath('data.ai_confidence_score', 90);
+});
+
+it('normalizes low AI confidence score from 0-1 scale correctly', function () {
+    Storage::fake('local');
+    $file = UploadedFile::fake()->create('document.pdf', 100, 'application/pdf');
+
+    // Simulate AI returning 0.65 = 65%
+    $fakeResponse = [
+        'category_name' => 'Kesehatan',
+        'classification_name' => 'Biasa',
+        'summary' => 'Dokumen kesehatan.',
+        'confidence_score' => 0.65,
+    ];
+    ArchiveClassifier::fake([$fakeResponse]);
+
+    $response = $this->actingAs($this->user)
+        ->postJson(route('archives.process-ai'), [
+            'document' => $file,
+        ]);
+
+    // 0.65 from AI should be normalized to 65, NOT truncated to 0
+    $response->assertOk()
+        ->assertJsonPath('data.ai_confidence_score', 65);
+});
+
+it('handles conversational or non-json AI response gracefully without 500 error', function () {
+    Storage::fake('local');
+    $file = UploadedFile::fake()->create('5. Perpres Nomor 95 Tahun 2018 tentang SPBE.pdf', 100, 'application/pdf');
+
+    // Simulate conversational plain text without structured JSON
+    ArchiveClassifier::fake(['Halo! Saya CodeBuddy Code. Isi teks lengkap dari dokumen tidak tersedia.']);
+
+    $response = $this->actingAs($this->user)
+        ->postJson(route('archives.process-ai'), [
+            'document' => $file,
+        ]);
+
+    $response->assertOk()
+        ->assertJsonPath('data.category_id', $this->category->id)
+        ->assertJsonPath('data.classification_id', $this->classification->id)
+        ->assertJsonPath('data.is_ai_degraded', true);
+
+    expect($response->json('data.summary'))->not->toBeEmpty();
+});
+
+it('handles AI exception gracefully and provides fallback defaults', function () {
+    Storage::fake('local');
+    $file = UploadedFile::fake()->create('surat_keputusan.pdf', 100, 'application/pdf');
+
+    // Simulate AI throwing exception
+    ArchiveClassifier::fake(function () {
+        throw new RuntimeException('AI Service Gateway Timeout');
+    });
+
+    $response = $this->actingAs($this->user)
+        ->postJson(route('archives.process-ai'), [
+            'document' => $file,
+        ]);
+
+    $response->assertOk()
+        ->assertJsonPath('data.category_id', $this->category->id)
+        ->assertJsonPath('data.classification_id', $this->classification->id)
+        ->assertJsonPath('data.is_ai_degraded', true)
+        ->assertJsonPath('data.ai_confidence_score', 0);
+});
+
 it('prevents guests from downloading archives', function () {
     $archive = Archive::create([
         'category_id' => $this->category->id,
