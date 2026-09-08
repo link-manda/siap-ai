@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Archive;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 class ArchiveExplorer extends Component
@@ -12,6 +13,14 @@ class ArchiveExplorer extends Component
     public string $groupingMode = 'category_classification';
 
     public string $activeNodeId = '';
+
+    public int $selectedCount = 0;
+
+    #[On('update-selected-count')]
+    public function updateSelectedCount($count)
+    {
+        $this->selectedCount = $count;
+    }
 
     public function selectNode($nodeId, $filters)
     {

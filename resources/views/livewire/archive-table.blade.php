@@ -1,4 +1,5 @@
 <div class="space-y-6">
+    @if(!$isExplorer)
     {{-- Top Action Bar --}}
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -33,6 +34,7 @@
             </a>
         </div>
     </div>
+    @endif
 
     {{-- Filter & Search Box --}}
     <div class="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xs space-y-3">

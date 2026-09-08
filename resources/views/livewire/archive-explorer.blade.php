@@ -1,4 +1,41 @@
-<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<div class="space-y-6">
+    {{-- Page Header --}}
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-xl font-bold text-zinc-900 dark:text-white tracking-tight">Manajemen Arsip</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Kelola, cari, dan tinjau seluruh dokumen arsip digital Puskesmas.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+            @role('Pimpinan')
+                @if($selectedCount > 0)
+                <button type="button" wire:click="$dispatchTo('archive-table', 'trigger-bulk-delete')" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-900/50 transition mr-2">
+                    <flux:icon icon="trash" class="size-3.5" />
+                    <span>Hapus Massal ({{ $selectedCount }})</span>
+                </button>
+                @endif
+                <a href="{{ route('archives.trash') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-700 transition">
+                    <flux:icon icon="trash" class="size-3.5" />
+                    <span>Tong Sampah</span>
+                </a>
+            @endrole
+            <a href="{{ route('archives.export.excel') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/50 transition">
+                <flux:icon icon="document-text" class="size-3.5" />
+                <span>Export Excel</span>
+            </a>
+            <a href="{{ route('archives.export.pdf') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-900/50 transition">
+                <flux:icon icon="document-text" class="size-3.5" />
+                <span>Export PDF</span>
+            </a>
+            <a href="{{ route('archives.create') }}" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 rounded-lg shadow-sm transition">
+                <flux:icon icon="plus" class="size-3.5" />
+                <span>Upload Arsip Baru</span>
+            </a>
+        </div>
+    </div>
+
+    {{-- Split View Content --}}
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
     {{-- Sidebar Kiri: Smart Folders --}}
     <div class="md:col-span-3 space-y-4">
         <div class="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 shadow-xs">
@@ -71,4 +108,5 @@
     <div class="md:col-span-9">
         <livewire:archive-table :is-explorer="true" />
     </div>
+</div>
 </div>

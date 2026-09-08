@@ -136,6 +136,18 @@ class ArchiveTable extends Component
         } else {
             $this->selected = [];
         }
+        $this->dispatch('update-selected-count', count($this->selected));
+    }
+
+    public function updatedSelected()
+    {
+        $this->dispatch('update-selected-count', count($this->selected));
+    }
+
+    #[On('trigger-bulk-delete')]
+    public function triggerBulkDelete()
+    {
+        $this->confirmDelete();
     }
 
     public function confirmDelete($id = null): void
