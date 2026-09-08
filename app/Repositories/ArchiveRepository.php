@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Interfaces\ArchiveRepositoryInterface;
 use App\Models\Archive;
+use App\Models\ArchiveAttachment;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -144,19 +145,24 @@ class ArchiveRepository implements ArchiveRepositoryInterface
     {
         $today = Carbon::today();
 
-        $activeSize = (int) $this->getBaseQuery()
+        $activeArchives = $this->getBaseQuery()
             ->where(function ($query) use ($today) {
                 $query->whereNull('retention_date')
                     ->orWhere('retention_date', '>=', $today);
-            })
-            ->sum('file_size');
+            });
 
-        $expiredSize = (int) $this->getBaseQuery()
+        $activeSize = (int) $activeArchives->clone()->sum('file_size')
+            + (int) ArchiveAttachment::whereIn('archive_id', $activeArchives->select('id'))->sum('file_size');
+
+        $expiredArchives = $this->getBaseQuery()
             ->whereNotNull('retention_date')
-            ->where('retention_date', '<', $today)
-            ->sum('file_size');
+            ->where('retention_date', '<', $today);
 
-        $trashSize = (int) Archive::onlyTrashed()->sum('file_size');
+        $expiredSize = (int) $expiredArchives->clone()->sum('file_size')
+            + (int) ArchiveAttachment::whereIn('archive_id', $expiredArchives->select('id'))->sum('file_size');
+
+        $trashSize = (int) Archive::onlyTrashed()->sum('file_size')
+            + (int) ArchiveAttachment::onlyTrashed()->sum('file_size');
 
         return [
             'active_size' => $activeSize,

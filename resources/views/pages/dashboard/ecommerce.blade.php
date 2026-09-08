@@ -29,6 +29,13 @@
             $expiredPct = $quotaBytes > 0 ? ($expiredSize / $quotaBytes) * 100 : 0;
             $trashPct = $quotaBytes > 0 ? ($trashSize / $quotaBytes) * 100 : 0;
 
+            $totalPct = $activePct + $expiredPct + $trashPct;
+            if ($totalPct > 100) {
+                $activePct = ($activePct / $totalPct) * 100;
+                $expiredPct = ($expiredPct / $totalPct) * 100;
+                $trashPct = ($trashPct / $totalPct) * 100;
+            }
+
             $formatBytes = function($bytes) {
                 if ($bytes <= 0) return '0 B';
                 $k = 1024;

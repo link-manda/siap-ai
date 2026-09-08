@@ -182,6 +182,7 @@ it('flashes session success on bulk store for redirect toast presentation', func
                 'title' => 'Bulk Doc Test',
                 'file_path' => $path,
                 'file_type' => 'pdf',
+                'file_size' => 1024,
                 'category_id' => $category->id,
                 'classification_id' => $classification->id,
             ],

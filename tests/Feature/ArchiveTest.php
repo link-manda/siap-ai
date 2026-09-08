@@ -204,6 +204,7 @@ it('bulk stores multiple archives and logs uploads', function () {
                 'title' => 'Bulk Doc 1',
                 'file_path' => $filePath1,
                 'file_type' => 'pdf',
+                'file_size' => 1024,
                 'category_id' => $this->category->id,
                 'classification_id' => $this->classification->id,
             ],
@@ -211,6 +212,7 @@ it('bulk stores multiple archives and logs uploads', function () {
                 'title' => 'Bulk Doc 2',
                 'file_path' => $filePath2,
                 'file_type' => 'pdf',
+                'file_size' => 2048,
                 'category_id' => $this->category->id,
                 'classification_id' => $this->classification->id,
             ],
@@ -237,6 +239,7 @@ it('rejects bulk store if more than 5 archives', function () {
             'title' => 'Doc '.$i,
             'file_path' => 'private/archives/doc'.$i.'.pdf',
             'file_type' => 'pdf',
+            'file_size' => 1024,
             'category_id' => $this->category->id,
             'classification_id' => $this->classification->id,
         ];

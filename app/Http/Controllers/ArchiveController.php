@@ -60,22 +60,31 @@ class ArchiveController extends Controller
             'extracted_text' => ['nullable', 'string', 'max:20000'],
         ]);
 
-        $aiDraftData = $this->archiveService->processUpload(
-            $request->file('document'),
-            $request->input('extracted_text')
-        );
+        try {
+            $aiDraftData = $this->archiveService->processUpload(
+                $request->file('document'),
+                $request->input('extracted_text')
+            );
 
-        $classification = Classification::find($aiDraftData['classification_id']);
+            $classification = Classification::find($aiDraftData['classification_id']);
 
-        if (Auth::user()->hasRole('Administrator') && $classification && $classification->level === 4) {
-            $aiDraftData['extracted_text'] = '[REDACTED]';
-            $aiDraftData['summary'] = '[REDACTED - Level 4 Security]';
+            if (Auth::user()->hasRole('Administrator') && $classification && $classification->level === 4) {
+                $aiDraftData['extracted_text'] = '[REDACTED]';
+                $aiDraftData['summary'] = '[REDACTED - Level 4 Security]';
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $aiDraftData,
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Gagal memproses dokumen di processAi: '.$e->getMessage(), ['exception' => $e]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal memproses dokumen: '.$e->getMessage(),
+            ], 500);
         }
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $aiDraftData,
-        ]);
     }
 
     public function store(Request $request)
@@ -101,7 +110,7 @@ class ArchiveController extends Controller
                 },
             ],
             'file_type' => ['required', 'string'],
-            'file_size' => ['nullable', 'numeric'],
+            'file_size' => ['required', 'numeric', 'min:1'],
             'category_id' => ['required', 'exists:categories,id'],
             'classification_id' => [
                 'required',
@@ -123,9 +132,24 @@ class ArchiveController extends Controller
             'extracted_text' => ['nullable', 'string'],
             'ai_model' => ['nullable', 'string'],
             'ai_confidence_score' => ['nullable', 'numeric'],
+            'attachments' => ['nullable', 'array'],
+            'attachments.*' => ['nullable', 'file', 'max:20480'],
         ]);
 
-        $this->archiveService->storeArchive($validated, Auth::id());
+        $archive = $this->archiveService->storeArchive($validated, Auth::id());
+
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('private/attachments');
+
+                $archive->attachments()->create([
+                    'file_name' => $file->getClientOriginalName(),
+                    'file_path' => $path,
+                    'file_size' => $file->getSize(),
+                    'file_type' => $file->extension() ?: $file->getClientOriginalExtension(),
+                ]);
+            }
+        }
 
         return redirect()->route('archives.index')->with('success', 'Arsip berhasil disimpan!');
     }
@@ -154,7 +178,7 @@ class ArchiveController extends Controller
                 },
             ],
             'archives.*.file_type' => ['required', 'string'],
-            'archives.*.file_size' => ['nullable', 'numeric'],
+            'archives.*.file_size' => ['required', 'numeric', 'min:1'],
             'archives.*.category_id' => ['required', 'exists:categories,id'],
             'archives.*.classification_id' => [
                 'required',
@@ -343,7 +367,11 @@ class ArchiveController extends Controller
 
     public function trash()
     {
-        $archives = Archive::onlyTrashed()->with(['category', 'classification', 'uploader'])->latest('deleted_at')->paginate(10);
+        $archives = Archive::onlyTrashed()
+            ->with(['category', 'classification', 'uploader'])
+            ->withCount(['attachments' => fn ($q) => $q->withTrashed()])
+            ->latest('deleted_at')
+            ->paginate(10);
 
         return view('pages.archives.trash', compact('archives'));
     }
