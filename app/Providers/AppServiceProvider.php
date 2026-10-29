@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Interfaces\AiSettingRepositoryInterface;
+use App\Interfaces\ArchiveRepositoryInterface;
+use App\Models\Archive;
+use App\Observers\ArchiveObserver;
+use App\Repositories\AiSettingRepository;
+use App\Repositories\ArchiveRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -12,8 +18,13 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(
-            \App\Interfaces\ArchiveRepositoryInterface::class,
-            \App\Repositories\ArchiveRepository::class
+            ArchiveRepositoryInterface::class,
+            ArchiveRepository::class
+        );
+
+        $this->app->bind(
+            AiSettingRepositoryInterface::class,
+            AiSettingRepository::class
         );
     }
 
@@ -22,6 +33,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        \App\Models\Archive::observe(\App\Observers\ArchiveObserver::class);
+        Archive::observe(ArchiveObserver::class);
     }
 }

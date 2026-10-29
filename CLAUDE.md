@@ -104,6 +104,15 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - Laravel can be deployed using [Laravel Cloud](https://cloud.laravel.com/), which is the fastest way to deploy and scale production Laravel applications.
 
+=== tests rules ===
+
+# Test Enforcement
+
+- Test every code change by adding or updating a test.
+- Run the affected tests and ensure they pass.
+- Test the changed behavior and its important failure modes, but do not add tests beyond them.
+- Read the `testing-best-practices` skill before writing tests.
+
 === laravel/core rules ===
 
 # Do Things the Laravel Way
@@ -134,6 +143,14 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `npm run build` or ask the user to run `npm run dev` or `composer run dev`.
 
+=== livewire/core rules ===
+
+# Livewire
+
+- Livewire allows you to build dynamic, reactive interfaces in PHP without writing JavaScript.
+- You can use Alpine.js for client-side interactions instead of JavaScript frameworks.
+- Keep state server-side so the UI reflects it. Validate and authorize in actions as you would in HTTP requests.
+
 === pint/core rules ===
 
 # Laravel Pint Code Formatter
@@ -158,3 +175,40 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 - After the feature tests pass, ask the user to run the complete suite with `php artisan test --compact`.
 
 </laravel-boost-guidelines>
+
+<siap-ai-standards>
+# Standar Arsitektur, Penulisan Kode & Prosedur Kerja (SIAP-AI)
+
+## 0. KEWAJIBAN PENGGUNAAN SKILL (MUTLAK)
+Sebelum mengerjakan atau merencanakan fitur apapun, agen **WAJIB** mengecek daftar `<skills>` yang tersedia di lingkungan `antigravity-cli`. 
+- Jika tugas berkaitan dengan kode backend PHP/Laravel (Controller, Model, Service), agen **wajib** menggunakan/merujuk pada skill `laravel-best-practices`.
+- Jika tugas berkaitan dengan integrasi AI (Gemini/OpenAI) atau `laravel/ai`, agen **wajib** menggunakan/merujuk pada skill `ai-sdk-development`.
+- Jika tugas berkaitan dengan tampilan frontend/blade/Flux UI, agen **wajib** merujuk pada skill `fluxui-development` dan `tailwindcss-development`.
+- Jika tugas berkaitan dengan komponen reaktif Livewire/DataTable, agen **wajib** merujuk pada skill `livewire-development`.
+Agen tidak boleh melakukan *coding* manual mengandalkan pengetahuan dasar jika *skill* khusus tersedia untuk ranah tersebut. Sebutkan skill apa yang digunakan di awal respons Anda.
+
+## 1. Pola Service-Repository (Wajib)
+- **Controller**: Hanya bertugas menerima request, melakukan validasi (`$request->validate()`), meneruskan data ke Service, dan mengembalikan response. Dilarang keras menulis logika query database di Controller.
+- **Service**: Menyediakan logika bisnis (termasuk pemanggilan API AI untuk OCR/Klasifikasi seperti di PRD). Satu fungsi service dapat memanggil lebih dari satu repository.
+- **Repository**: Menyediakan akses data (Eloquent/Query). Murni operasi CRUD ke database.
+
+## 2. Standar Penamaan (Naming Conventions)
+- **Class / Model / Controller**: `PascalCase` (contoh: `ArchiveController`, `AiClassificationService`).
+- **Function / Method**: `camelCase` (contoh: `getArchives`, `processDocument`).
+- **Variabel (PHP & Javascript)**: `snake_case` (contoh: `$file_path`, `let extracted_text`).
+- **Helper Class**: Suffix `Helper` dengan `PascalCase` (contoh: `FormatHelper`).
+- **Helper Function**: Suffix `_helper` dengan `snake_case` (contoh: `format_helper`).
+
+## 3. View Resources (Blade & JS)
+- Penamaan file Blade harus `snake_case`. Jika menggunakan *sub-view*, gunakan prefix nama induknya (contoh: `archive_form.blade.php`).
+- **Aturan Javascript**: Tidak boleh menyisipkan fungsi PHP/Blade (`{{ }}`) secara langsung ke dalam blok algoritma/fungsi Javascript. Semua transisi data Blade ke JS harus menggunakan deklarasi variabel `const` atau `let` di bagian paling atas blok `<script>`, atau menggunakan direktif `@json()`.
+- **Larangan Mutlak Emoji sebagai Ikon (NO EMOJI ICONS)**: DILARANG KERAS menggunakan karakter emoji UTF-8 (misal 📄, 🔒, 🗑️, 👁️, ⚙️, 📁, dsb.) sebagai elemen ikon UI di seluruh sistem SIAP-AI. Seluruh ikon wajib menggunakan pustaka resmi Flux UI (`<flux:icon icon="..." />`) atau Heroicons SVG terstandar.
+- **Standarisasi Komponen Flux UI**: Gunakan komponen bawaan Flux UI (`<flux:card>`, `<flux:button>`, `<flux:badge>`, `<flux:input>`, `<flux:select>`, `<flux:dropdown>`) untuk menjaga konsistensi desain, proporsi visual, dan kompatibilitas tema gelap/terang. Hindari menulis inline `<svg>` mentah puluhan baris jika padanan ikon resmi Flux UI tersedia.
+- **Kebersihan Template & Zero Orphan Views**: Dilarang membiarkan berkas Blade yatim (*orphan*) atau sisa-sisa komponen template lama (TailAdmin) mengendap di `resources/views/`. Setiap file Blade yang ada di direktori views harus memiliki jalur pemanggilan aktif via rute, controller, Livewire, atau direktif `@include`/`@extends`.
+- **Efisiensi Aset JS/CSS (Vite)**: Hindari import statis pustaka eksternal berat pada `resources/js/app.js` untuk fitur yang tidak dipakai secara global. Gunakan *dynamic import* (`import(...)`) berbasis pemuatan halaman atau selektor DOM aktif agar ukuran bundle produksi tetap optimal.
+
+## 4. Konteks PRD SIAP-AI
+- Fitur utama adalah (FR-04) Integrasi AI untuk klasifikasi dokumen (Kategori, Klasifikasi Keamanan, dan Summary) yang dieksekusi di layer `AiClassificationService`.
+- Semua tabel utama (terutama `archives` dan `categories`) wajib mengimplementasikan `SoftDeletes`.
+- Tabel `archives` memiliki kolom khusus untuk AI: `extracted_text`, `summary`, `ai_model`, `ai_confidence_score`.
+</siap-ai-standards>

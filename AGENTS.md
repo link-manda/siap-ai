@@ -104,6 +104,15 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 
 - Laravel can be deployed using [Laravel Cloud](https://cloud.laravel.com/), which is the fastest way to deploy and scale production Laravel applications.
 
+=== tests rules ===
+
+# Test Enforcement
+
+- Test every code change by adding or updating a test.
+- Run the affected tests and ensure they pass.
+- Test the changed behavior and its important failure modes, but do not add tests beyond them.
+- Read the `testing-best-practices` skill before writing tests.
+
 === laravel/core rules ===
 
 # Do Things the Laravel Way
@@ -133,6 +142,14 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 ## Vite Error
 
 - If you receive an "Illuminate\Foundation\ViteException: Unable to locate file in Vite manifest" error, you can run `npm run build` or ask the user to run `npm run dev` or `composer run dev`.
+
+=== livewire/core rules ===
+
+# Livewire
+
+- Livewire allows you to build dynamic, reactive interfaces in PHP without writing JavaScript.
+- You can use Alpine.js for client-side interactions instead of JavaScript frameworks.
+- Keep state server-side so the UI reflects it. Validate and authorize in actions as you would in HTTP requests.
 
 === pint/core rules ===
 
@@ -166,7 +183,8 @@ This project has domain-specific skills available in `**/skills/**`. You MUST ac
 Sebelum mengerjakan atau merencanakan fitur apapun, agen **WAJIB** mengecek daftar `<skills>` yang tersedia di lingkungan `antigravity-cli`. 
 - Jika tugas berkaitan dengan kode backend PHP/Laravel (Controller, Model, Service), agen **wajib** menggunakan/merujuk pada skill `laravel-best-practices`.
 - Jika tugas berkaitan dengan integrasi AI (Gemini/OpenAI) atau `laravel/ai`, agen **wajib** menggunakan/merujuk pada skill `ai-sdk-development`.
-- Jika tugas berkaitan dengan tampilan frontend/blade, agen **wajib** merujuk pada skill `tailwindcss-development`.
+- Jika tugas berkaitan dengan tampilan frontend/blade/Flux UI, agen **wajib** merujuk pada skill `fluxui-development` dan `tailwindcss-development`.
+- Jika tugas berkaitan dengan komponen reaktif Livewire/DataTable, agen **wajib** merujuk pada skill `livewire-development`.
 Agen tidak boleh melakukan *coding* manual mengandalkan pengetahuan dasar jika *skill* khusus tersedia untuk ranah tersebut. Sebutkan skill apa yang digunakan di awal respons Anda.
 
 ## 1. Pola Service-Repository (Wajib)
@@ -184,9 +202,18 @@ Agen tidak boleh melakukan *coding* manual mengandalkan pengetahuan dasar jika *
 ## 3. View Resources (Blade & JS)
 - Penamaan file Blade harus `snake_case`. Jika menggunakan *sub-view*, gunakan prefix nama induknya (contoh: `archive_form.blade.php`).
 - **Aturan Javascript**: Tidak boleh menyisipkan fungsi PHP/Blade (`{{ }}`) secara langsung ke dalam blok algoritma/fungsi Javascript. Semua transisi data Blade ke JS harus menggunakan deklarasi variabel `const` atau `let` di bagian paling atas blok `<script>`, atau menggunakan direktif `@json()`.
+- **Larangan Mutlak Emoji sebagai Ikon (NO EMOJI ICONS)**: DILARANG KERAS menggunakan karakter emoji UTF-8 (misal 📄, 🔒, 🗑️, 👁️, ⚙️, 📁, dsb.) sebagai elemen ikon UI di seluruh sistem SIAP-AI. Seluruh ikon wajib menggunakan pustaka resmi Flux UI (`<flux:icon icon="..." />`) atau Heroicons SVG terstandar.
+- **Standarisasi Komponen Flux UI**: Gunakan komponen bawaan Flux UI (`<flux:card>`, `<flux:button>`, `<flux:badge>`, `<flux:input>`, `<flux:select>`, `<flux:dropdown>`) untuk menjaga konsistensi desain, proporsi visual, dan kompatibilitas tema gelap/terang. Hindari menulis inline `<svg>` mentah puluhan baris jika padanan ikon resmi Flux UI tersedia.
+- **Kebersihan Template & Zero Orphan Views**: Dilarang membiarkan berkas Blade yatim (*orphan*) atau sisa-sisa komponen template lama (TailAdmin) mengendap di `resources/views/`. Setiap file Blade yang ada di direktori views harus memiliki jalur pemanggilan aktif via rute, controller, Livewire, atau direktif `@include`/`@extends`.
+- **Standar Modal Konfirmasi**: DILARANG KERAS menggunakan konfirmasi peramban bawaan (seperti fungsi `confirm()` di JavaScript) ataupun direktif `wire:confirm` bawaan Livewire. Setiap dialog peringatan atau konfirmasi tindakan (hapus, pemulihan, dsb.) WAJIB menggunakan komponen `<flux:modal>` dari Flux UI. Penggunaan modal harus ditrigger dengan benar melalui `\Flux::modal('nama-modal')->show()` dan `->close()` dari sisi server (Livewire PHP), atau `$dispatch('modal-show', { name: 'nama-modal' })` dari sisi klien (Alpine.js).
+- **Efisiensi Aset JS/CSS (Vite)**: Hindari import statis pustaka eksternal berat pada `resources/js/app.js` untuk fitur yang tidak dipakai secara global. Gunakan *dynamic import* (`import(...)`) berbasis pemuatan halaman atau selektor DOM aktif agar ukuran bundle produksi tetap optimal.
 
 ## 4. Konteks PRD SIAP-AI
 - Fitur utama adalah (FR-04) Integrasi AI untuk klasifikasi dokumen (Kategori, Klasifikasi Keamanan, dan Summary) yang dieksekusi di layer `AiClassificationService`.
 - Semua tabel utama (terutama `archives` dan `categories`) wajib mengimplementasikan `SoftDeletes`.
 - Tabel `archives` memiliki kolom khusus untuk AI: `extracted_text`, `summary`, `ai_model`, `ai_confidence_score`.
+
+## 5. Standar Pratinjau (Preview) Dokumen & PDF
+- **Header Respons (Backend)**: Jika membuat rute atau fitur untuk menampilkan pratinjau dokumen di peramban (misal: PDF, Gambar), controller WAJIB mengembalikan *header* `Content-Disposition: inline`. Jangan menggunakan `Storage::download()` karena akan memaksa unduhan (attachment). Gunakan `response()->file($path, ['Content-Disposition' => 'inline; filename="nama-file"'])`.
+- **Atribut Iframe (Frontend)**: Saat menyematkan berkas PDF ke dalam tag `<iframe>`, DILARANG KERAS menggunakan atribut `sandbox` (seperti `sandbox="allow-scripts"` atau `sandbox="allow-same-origin"`). Atribut sandbox akan memblokir eksekusi plugin *native PDF Viewer* pada browser modern sehingga iframe menjadi kosong/blank.
 </siap-ai-standards>

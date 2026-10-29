@@ -1,9 +1,11 @@
 <?php
+
 require 'vendor/autoload.php';
 $app = require_once __DIR__.'/bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+$kernel = $app->make(Kernel::class);
 $kernel->bootstrap();
 
+use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Support\Facades\Http;
 
 $url = config('ai.providers.openai-compatible.url') ?? env('OPENAI_COMPATIBLE_URL', 'https://tokenportal.id/v1');
@@ -14,21 +16,21 @@ echo "Testing URL: {$url}\n";
 
 // Test models endpoint
 $response = Http::withToken($key)->get("{$url}/models");
-echo "Models endpoint status: " . $response->status() . "\n";
+echo 'Models endpoint status: '.$response->status()."\n";
 if ($response->status() !== 200) {
-    echo "Body: " . substr($response->body(), 0, 500) . "\n";
+    echo 'Body: '.substr($response->body(), 0, 500)."\n";
 }
 
 // Test chat completions
 $chatResponse = Http::withToken($key)->post("{$url}/chat/completions", [
     'model' => $model,
     'messages' => [
-        ['role' => 'user', 'content' => 'Hello']
-    ]
+        ['role' => 'user', 'content' => 'Hello'],
+    ],
 ]);
-echo "Chat completions status: " . $chatResponse->status() . "\n";
+echo 'Chat completions status: '.$chatResponse->status()."\n";
 if ($chatResponse->status() !== 200) {
-    echo "Body: " . substr($chatResponse->body(), 0, 500) . "\n";
+    echo 'Body: '.substr($chatResponse->body(), 0, 500)."\n";
 } else {
-    echo "Success! Response: " . json_encode($chatResponse->json()) . "\n";
+    echo 'Success! Response: '.json_encode($chatResponse->json())."\n";
 }

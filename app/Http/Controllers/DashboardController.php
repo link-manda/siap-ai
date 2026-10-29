@@ -2,24 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Interfaces\ArchiveRepositoryInterface;
-use Illuminate\Http\Request;
+use App\Services\ArchiveService;
 
 class DashboardController extends Controller
 {
     public function __construct(
-        protected ArchiveRepositoryInterface $archiveRepository
+        protected ArchiveService $archiveService
     ) {}
 
     public function index()
     {
-        $totalArchives = $this->archiveRepository->countTotal();
+        $stats = $this->archiveService->getDashboardStats();
 
-        // Next: Add more aggregations for charts
-
-        return view('pages.dashboard.ecommerce', [
-            'title' => 'SIAP-AI Dashboard', // Will rename to SIAP-AI Dashboard in frontend phase
-            'totalArchives' => $totalArchives
-        ]);
+        return view('pages.dashboard.ecommerce', array_merge([
+            'title' => 'SIAP-AI Dashboard',
+        ], $stats));
     }
 }

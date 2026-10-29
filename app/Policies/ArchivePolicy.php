@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Archive;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class ArchivePolicy
 {
@@ -13,7 +12,7 @@ class ArchivePolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->hasRole(['Administrator', 'Pimpinan']);
     }
 
     /**
@@ -21,12 +20,18 @@ class ArchivePolicy
      */
     public function view(User $user, Archive $archive): bool
     {
-        if ($user->role === 'Pimpinan') {
+        if ($user->hasRole('Pimpinan')) {
             return true;
         }
 
-        // Admin can only view if classification level is <= 3
-        return $archive->classification->level <= 3;
+        if ($user->hasRole('Administrator')) {
+            // Assume default level 1 if not explicitly loaded
+            $level = $archive->classification?->level ?? 1;
+
+            return $level <= 3;
+        }
+
+        return false;
     }
 
     /**

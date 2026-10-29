@@ -3,19 +3,45 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 class Archive extends Model
 {
-    use SoftDeletes;
+    use LogsActivity, SoftDeletes;
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Archive $archive) {
+            if ($archive->isForceDeleting()) {
+                $archive->attachments()->forceDelete();
+            } else {
+                $archive->attachments()->delete();
+            }
+        });
+
+        static::restoring(function (Archive $archive) {
+            $archive->attachments()->restore();
+        });
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty();
+    }
 
     protected $fillable = [
         'document_number',
         'title',
         'document_date',
+        'retention_date',
         'file_path',
+        'file_size',
         'file_type',
         'category_id',
         'classification_id',
@@ -24,12 +50,14 @@ class Archive extends Model
         'summary',
         'ai_model',
         'ai_confidence_score',
+        'delete_reason',
     ];
 
     protected function casts(): array
     {
         return [
             'document_date' => 'date',
+            'retention_date' => 'date',
             'ai_confidence_score' => 'decimal:2',
         ];
     }
@@ -47,6 +75,11 @@ class Archive extends Model
     public function uploader(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(ArchiveAttachment::class);
     }
 
     public function logs(): HasMany

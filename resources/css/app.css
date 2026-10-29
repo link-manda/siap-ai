@@ -1,9 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap') layer(base);
 @import 'prismjs/themes/prism.min.css';
 @import 'tailwindcss';
+@import '../../vendor/livewire/flux/dist/flux.css';
 
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/livewire/flux/stubs/**/*.blade.php';
 @source '../../storage/framework/views/*.php';
 @source '../**/*.blade.php';
 @source '../**/*.js';
@@ -13,7 +14,11 @@
 
 @theme {
   --font-*: initial;
-  --font-outfit: Outfit, sans-serif;
+  --font-sans: 'Inter', sans-serif;
+
+  --color-accent: var(--color-emerald-600);
+  --color-accent-content: var(--color-emerald-600);
+  --color-accent-foreground: var(--color-white);
 
   --breakpoint-*: initial;
   --breakpoint-2xsm: 375px;
@@ -168,6 +173,14 @@
   --z-index-999999: 999999;
 }
 
+@layer theme {
+  .dark {
+    --color-accent: var(--color-emerald-600);
+    --color-accent-content: var(--color-emerald-400);
+    --color-accent-foreground: var(--color-white);
+  }
+}
+
 /*
   The default border color has changed to `currentColor` in Tailwind CSS v4,
   so we've added these compatibility styles to make sure everything still
@@ -189,7 +202,7 @@
     cursor: pointer;
   }
   body {
-    @apply relative font-normal font-outfit z-1 bg-gray-50 dark:bg-gray-900;
+    @apply relative font-normal font-sans z-1 bg-gray-50 dark:bg-gray-900;
   }
 }
 
@@ -1352,4 +1365,29 @@ pre code,
   direction: ltr !important;
   text-align: left !important;
   unicode-bidi: isolate;
+}
+
+/* SIAP-AI Centralized Toast Fixed Layer */
+ui-toast {
+  position: fixed !important;
+  top: 1.25rem !important;
+  right: 1.25rem !important;
+  bottom: auto !important;
+  left: auto !important;
+  z-index: 99999 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  outline: none !important;
+  background: transparent !important;
+  pointer-events: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.75rem !important;
+  max-width: 24rem !important;
+  width: calc(100% - 2.5rem) !important;
+}
+
+ui-toast [data-flux-toast-dialog] {
+  pointer-events: auto !important;
 }

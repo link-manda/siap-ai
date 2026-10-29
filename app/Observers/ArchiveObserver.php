@@ -30,6 +30,10 @@ class ArchiveObserver
      */
     public function deleted(Archive $archive): void
     {
+        if ($archive->isForceDeleting()) {
+            return;
+        }
+
         $this->logAction($archive, 'DELETE');
     }
 
@@ -45,10 +49,10 @@ class ArchiveObserver
     {
         ArchiveLog::create([
             'archive_id' => $archive->id,
-            'user_id' => Auth::id(),
+            'user_id' => Auth::id() ?? $archive->uploaded_by,
             'action' => $action,
-            'ip_address' => Request::ip(),
-            'user_agent' => Request::userAgent(),
+            'ip_address' => Request::ip() ?? '127.0.0.1',
+            'user_agent' => Request::userAgent() ?? 'CLI/System',
         ]);
     }
 }
