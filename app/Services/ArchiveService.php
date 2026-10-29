@@ -28,11 +28,11 @@ class ArchiveService
         $fileSize = $file->getSize();
 
         // If no text is provided, in a real app we would run OCR here.
-        // For now, we simulate OCR text if empty.
-        $textToAnalyze = $extractedText ?: 'Simulasi isi dokumen: '.$fileName;
+        // Construct formal metadata text descriptor if empty.
+        $textToAnalyze = $extractedText ?: "Judul Berkas: {$fileName}\nTipe Dokumen: {$fileType}\nUkuran: {$fileSize} bytes\nDeskripsi: Berkas arsip resmi Puskesmas.";
 
         // Call AI Service
-        $aiResult = $this->aiClassificationService->classifyDocument($textToAnalyze);
+        $aiResult = $this->aiClassificationService->classifyDocument($textToAnalyze, $fileName);
 
         return [
             'title' => pathinfo($fileName, PATHINFO_FILENAME),
@@ -45,6 +45,7 @@ class ArchiveService
             'summary' => $aiResult['summary'],
             'ai_confidence_score' => $aiResult['ai_confidence_score'],
             'ai_model' => $aiResult['ai_model'],
+            'is_ai_degraded' => $aiResult['is_ai_degraded'] ?? false,
         ];
     }
 

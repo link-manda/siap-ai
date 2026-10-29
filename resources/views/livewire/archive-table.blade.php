@@ -105,7 +105,6 @@
                         <th class="py-3 px-4">Dokumen</th>
                         <th class="py-3 px-4">Kategori</th>
                         <th class="py-3 px-4">Klasifikasi</th>
-                        <th class="py-3 px-4">Pengunggah</th>
                         <th class="py-3 px-4">Waktu Simpan</th>
                         <th class="py-3 px-4 text-end">Aksi</th>
                     </tr>
@@ -156,9 +155,6 @@
                                     {{ $archive->classification?->name ?? 'Biasa' }}
                                 </span>
                             </td>
-                            <td class="py-3 px-4 text-zinc-500 dark:text-zinc-400">
-                                {{ $archive->uploader->name ?? '-' }}
-                            </td>
                             <td class="py-3 px-4 text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
                                 {{ $archive->created_at->format('d M Y, H:i') }}
                             </td>
@@ -186,7 +182,7 @@
                                 </div>
                             </td>
                         </tr>
-                        
+
                         {{-- Expandable Child Row --}}
                         <tr x-show="expanded" x-cloak class="bg-zinc-50/50 dark:bg-zinc-800/10">
                             <td colspan="{{ auth()->user()->hasRole('Pimpinan') ? 7 : 6 }}" class="p-0 border-t border-zinc-100 dark:border-zinc-800">
@@ -236,7 +232,7 @@
     <flux:modal name="delete-reason-modal" class="md:w-96">
         <div class="space-y-4">
             <h2 class="text-lg font-bold text-zinc-900 dark:text-white">Konfirmasi Penghapusan</h2>
-            
+
             @if($attachmentCountToDelete > 0)
                 <div class="bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 rounded-lg p-3">
                     <p class="text-sm text-rose-700 dark:text-rose-400 font-medium">

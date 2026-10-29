@@ -212,4 +212,8 @@ Agen tidak boleh melakukan *coding* manual mengandalkan pengetahuan dasar jika *
 - Fitur utama adalah (FR-04) Integrasi AI untuk klasifikasi dokumen (Kategori, Klasifikasi Keamanan, dan Summary) yang dieksekusi di layer `AiClassificationService`.
 - Semua tabel utama (terutama `archives` dan `categories`) wajib mengimplementasikan `SoftDeletes`.
 - Tabel `archives` memiliki kolom khusus untuk AI: `extracted_text`, `summary`, `ai_model`, `ai_confidence_score`.
+
+## 5. Standar Pratinjau (Preview) Dokumen & PDF
+- **Header Respons (Backend)**: Jika membuat rute atau fitur untuk menampilkan pratinjau dokumen di peramban (misal: PDF, Gambar), controller WAJIB mengembalikan *header* `Content-Disposition: inline`. Jangan menggunakan `Storage::download()` karena akan memaksa unduhan (attachment). Gunakan `response()->file($path, ['Content-Disposition' => 'inline; filename="nama-file"'])`.
+- **Atribut Iframe (Frontend)**: Saat menyematkan berkas PDF ke dalam tag `<iframe>`, DILARANG KERAS menggunakan atribut `sandbox` (seperti `sandbox="allow-scripts"` atau `sandbox="allow-same-origin"`). Atribut sandbox akan memblokir eksekusi plugin *native PDF Viewer* pada browser modern sehingga iframe menjadi kosong/blank.
 </siap-ai-standards>

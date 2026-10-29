@@ -25,13 +25,28 @@ class UserTable extends Component
         $this->resetPage();
     }
 
-    public function deleteUser(int $id): void
+    public ?int $userToDeleteId = null;
+
+    public string $userToDeleteName = '';
+
+    public function confirmDeleteUser(int $id, string $name): void
     {
-        $user = User::findOrFail($id);
+        $this->userToDeleteId = $id;
+        $this->userToDeleteName = $name;
+        \Flux::modal('delete-user-modal')->show();
+    }
+
+    public function executeDeleteUser(): void
+    {
+        if (! $this->userToDeleteId) {
+            return;
+        }
+
+        $user = User::findOrFail($this->userToDeleteId);
 
         if (Auth::id() === $user->id) {
-            session()->flash('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
-            $this->dispatch('toast-show', slots: ['text' => 'Anda tidak dapat menghapus akun Anda sendiri.', 'heading' => 'Kesalahan'], dataset: ['variant' => 'danger'], duration: 0);
+            $this->dispatch('toast-show', slots: ['text' => 'Anda tidak dapat menghapus akun Anda sendiri.', 'heading' => 'Kesalahan'], dataset: ['variant' => 'danger']);
+            \Flux::modal('delete-user-modal')->close();
 
             return;
         }
@@ -39,8 +54,11 @@ class UserTable extends Component
         $this->authorize('delete', $user);
 
         $user->delete();
-        session()->flash('success', 'Pengguna berhasil dihapus.');
-        $this->dispatch('toast-show', slots: ['text' => 'Pengguna berhasil dihapus.', 'heading' => 'Sukses'], dataset: ['variant' => 'success'], duration: 5000);
+        $this->dispatch('toast-show', slots: ['text' => 'Pengguna berhasil dihapus.', 'heading' => 'Sukses'], dataset: ['variant' => 'success']);
+
+        $this->userToDeleteId = null;
+        $this->userToDeleteName = '';
+        \Flux::modal('delete-user-modal')->close();
     }
 
     public function render()

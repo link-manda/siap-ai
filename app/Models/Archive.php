@@ -13,6 +13,21 @@ class Archive extends Model
 {
     use LogsActivity, SoftDeletes;
 
+    protected static function booted(): void
+    {
+        static::deleting(function (Archive $archive) {
+            if ($archive->isForceDeleting()) {
+                $archive->attachments()->forceDelete();
+            } else {
+                $archive->attachments()->delete();
+            }
+        });
+
+        static::restoring(function (Archive $archive) {
+            $archive->attachments()->restore();
+        });
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -60,6 +75,11 @@ class Archive extends Model
     public function uploader(): BelongsTo
     {
         return $this->belongsTo(User::class, 'uploaded_by');
+    }
+
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(ArchiveAttachment::class);
     }
 
     public function logs(): HasMany

@@ -2,13 +2,13 @@
 
 @section('content')
     <div class="relative flex min-h-screen w-full flex-col lg:flex-row bg-white dark:bg-zinc-950">
-        
+
         <!-- Left Side: Hero Image (Hidden on mobile, 50% on large screens) -->
         <div class="hidden lg:block lg:w-1/2 relative bg-zinc-100 dark:bg-zinc-900">
             <!-- Hero Image filling the container -->
-            <img 
-                src="{{ asset('images/hero.jpg') }}" 
-                alt="Fasilitas Kesehatan SIAP-AI" 
+            <img
+                src="{{ asset('images/hero.jpg') }}"
+                alt="Fasilitas Kesehatan SIAP-AI"
                 class="absolute inset-0 w-full h-full object-cover"
             />
             <!-- Subtle Overlay -->
@@ -21,13 +21,13 @@
                 <!-- Branding Header -->
                 <div class="mb-10 text-center lg:text-left">
                     <div class="flex items-center justify-center lg:justify-start mb-6">
-                        <img 
-                            src="{{ asset('images/logo-puskesmas.png') }}" 
-                            alt="Logo Puskesmas" 
+                        <img
+                            src="{{ asset('images/logo-puskesmas.png') }}"
+                            alt="Logo Puskesmas"
                             class="h-14 w-auto object-contain"
                         />
                     </div>
-                    
+
                     <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
                         Masuk ke SIAP-AI
                     </h1>
@@ -43,13 +43,13 @@
                     <!-- Email -->
                     <flux:field>
                         <flux:label>Email Pengguna</flux:label>
-                        <flux:input 
-                            type="email" 
-                            name="email" 
-                            value="{{ old('email') }}" 
-                            placeholder="nama@puskesmas.go.id" 
-                            required 
-                            autofocus 
+                        <flux:input
+                            type="email"
+                            name="email"
+                            value="{{ old('email') }}"
+                            placeholder="nama@puskesmas.go.id"
+                            required
+                            autofocus
                         />
                         <flux:error name="email" />
                     </flux:field>
@@ -62,20 +62,20 @@
                                 Lupa kata sandi?
                             </a>
                         </div>
-                        <flux:input 
-                            type="password" 
-                            name="password" 
-                            placeholder="••••••••" 
-                            required 
+                        <flux:input
+                            type="password"
+                            name="password"
+                            placeholder="••••••••"
+                            required
                             viewable
                         />
                         <flux:error name="password" />
                     </flux:field>
 
                     <!-- Remember Me -->
-                    <flux:checkbox 
-                        name="remember" 
-                        label="Ingat saya di perangkat ini" 
+                    <flux:checkbox
+                        name="remember"
+                        label="Ingat saya di perangkat ini"
                     />
 
                     <!-- Submit Button -->

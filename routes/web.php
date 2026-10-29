@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AiSettingController;
+use App\Http\Controllers\ArchiveAttachmentController;
 use App\Http\Controllers\ArchiveController;
 use App\Http\Controllers\AuditTrailController;
 use App\Http\Controllers\AuthController;
@@ -36,6 +37,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}/stream', [ArchiveController::class, 'stream'])->name('stream')->middleware('throttle:30,1');
         Route::get('/{id}/preview', [ArchiveController::class, 'preview'])->name('preview')->middleware('throttle:60,1');
         Route::delete('/{id}', [ArchiveController::class, 'destroy'])->name('destroy');
+
+        // Attachments
+        Route::post('/{archive}/attachments', [ArchiveAttachmentController::class, 'store'])->name('attachments.store');
+        Route::delete('/attachments/{attachment}', [ArchiveAttachmentController::class, 'destroy'])->name('attachments.destroy');
+        Route::get('/attachments/{attachment}/download', [ArchiveAttachmentController::class, 'download'])->name('attachments.download')->middleware('throttle:60,1');
+        Route::get('/attachments/{attachment}/stream', [ArchiveAttachmentController::class, 'stream'])->name('attachments.stream')->middleware('throttle:30,1');
     });
 
     // Audit Trail

@@ -48,28 +48,70 @@
                             </td>
                             <td class="py-3 px-4 text-end">
                                 <div class="inline-flex items-center gap-1.5 justify-end">
-                                    <form action="{{ route('archives.restore', $archive->id) }}" method="POST" class="inline-block">
-                                        @csrf
-                                        <button 
-                                            type="submit" 
-                                            onclick="return confirm('Kembalikan dokumen ini ke daftar arsip aktif?')"
-                                            title="Restore" 
-                                            class="p-1.5 text-zinc-500 hover:text-emerald-600 dark:text-zinc-400 dark:hover:text-emerald-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition">
-                                            <flux:icon icon="arrow-uturn-left" class="size-4" />
-                                        </button>
-                                    </form>
-                                    <form action="{{ route('archives.force-destroy', $archive->id) }}" method="POST" class="inline-block">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button 
-                                            type="submit" 
-                                            onclick="return confirm('PERINGATAN: Tindakan ini akan menghapus arsip secara permanen dari sistem dan tidak dapat dibatalkan. Lanjutkan?')"
-                                            title="Hapus Permanen" 
-                                            class="p-1.5 text-zinc-500 hover:text-rose-600 dark:text-zinc-400 dark:hover:text-rose-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition">
-                                            <flux:icon icon="fire" class="size-4" />
-                                        </button>
-                                    </form>
+                                    <button 
+                                        type="button" 
+                                        x-data 
+                                        x-on:click="$dispatch('modal-show', { name: 'restore-archive-{{ $archive->id }}' })"
+                                        title="Restore" 
+                                        class="p-1.5 text-zinc-500 hover:text-emerald-600 dark:text-zinc-400 dark:hover:text-emerald-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition">
+                                        <flux:icon icon="arrow-uturn-left" class="size-4" />
+                                    </button>
+
+                                    <button 
+                                        type="button" 
+                                        x-data 
+                                        x-on:click="$dispatch('modal-show', { name: 'force-delete-archive-{{ $archive->id }}' })"
+                                        title="Hapus Permanen" 
+                                        class="p-1.5 text-zinc-500 hover:text-rose-600 dark:text-zinc-400 dark:hover:text-rose-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-md transition">
+                                        <flux:icon icon="fire" class="size-4" />
+                                    </button>
                                 </div>
+
+                                {{-- Modal Restore --}}
+                                <flux:modal name="restore-archive-{{ $archive->id }}" class="md:w-96 text-left">
+                                    <div class="space-y-4">
+                                        <div class="space-y-2">
+                                            <flux:heading size="lg" class="text-zinc-900 dark:text-white font-bold">Pulihkan Arsip</flux:heading>
+                                            <flux:subheading class="text-xs text-zinc-600 dark:text-zinc-400 whitespace-normal">
+                                                Kembalikan dokumen <strong class="text-zinc-900 dark:text-white">{{ $archive->title }}</strong> ke daftar arsip aktif?
+                                            </flux:subheading>
+                                        </div>
+                                        <div class="flex justify-end gap-2 mt-4 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+                                            <flux:modal.close>
+                                                <flux:button variant="subtle">Batal</flux:button>
+                                            </flux:modal.close>
+                                            <form action="{{ route('archives.restore', $archive->id) }}" method="POST">
+                                                @csrf
+                                                <flux:button type="submit" variant="primary" class="bg-emerald-600 hover:bg-emerald-500 text-white">Pulihkan</flux:button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </flux:modal>
+
+                                {{-- Modal Force Delete --}}
+                                <flux:modal name="force-delete-archive-{{ $archive->id }}" class="md:w-96 text-left">
+                                    <div class="space-y-4">
+                                        <div class="space-y-2">
+                                            <flux:heading size="lg" class="text-zinc-900 dark:text-white font-bold">Hapus Arsip Permanen</flux:heading>
+                                            <flux:subheading class="text-xs text-zinc-600 dark:text-zinc-400 whitespace-normal">
+                                                @if($archive->attachments_count > 0)
+                                                    <span class="block mb-2 text-rose-600 dark:text-rose-400 font-medium">Arsip ini memiliki {{ $archive->attachments_count }} lampiran pendukung di tempat sampah. Menghapus permanen arsip ini akan melenyapkan seluruh file lampiran secara fisik.</span>
+                                                @endif
+                                                PERINGATAN: Tindakan ini akan menghapus arsip <strong class="text-zinc-900 dark:text-white">{{ $archive->title }}</strong> secara permanen dari sistem dan tidak dapat dibatalkan. Lanjutkan?
+                                            </flux:subheading>
+                                        </div>
+                                        <div class="flex justify-end gap-2 mt-4 pt-2 border-t border-zinc-100 dark:border-zinc-800">
+                                            <flux:modal.close>
+                                                <flux:button variant="subtle">Batal</flux:button>
+                                            </flux:modal.close>
+                                            <form action="{{ route('archives.force-destroy', $archive->id) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <flux:button type="submit" variant="danger">Hapus Permanen</flux:button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </flux:modal>
                             </td>
                         </tr>
                     @empty

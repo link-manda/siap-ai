@@ -9,13 +9,13 @@
         {{-- Search input --}}
         <div class="w-full sm:w-72">
             <div class="relative">
-                <input 
-                    type="text" 
-                    wire:model.live.debounce.300ms="search" 
-                    placeholder="Cari aktivitas atau pengguna..." 
-                    class="w-full text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-hidden focus:ring-1 focus:ring-indigo-500" />
+                <input
+                    type="text"
+                    wire:model.live.debounce.300ms="search"
+                    placeholder="Cari aktivitas atau pengguna..."
+                    class="w-full text-xs rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 px-3 py-2 text-zinc-900 dark:text-white placeholder-zinc-400 focus:outline-hidden focus:ring-1 focus:ring-emerald-500" />
                 <div wire:loading.inline wire:target="search" class="absolute right-2.5 top-2.5">
-                    <svg class="animate-spin h-3.5 w-3.5 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                    <svg class="animate-spin h-3.5 w-3.5 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                 </div>
             </div>
         </div>
@@ -24,16 +24,16 @@
     {{-- Tabs --}}
     <div class="border-b border-zinc-200 dark:border-zinc-800">
         <nav class="-mb-px flex gap-6" aria-label="Tabs">
-            <button 
+            <button
                 type="button"
-                wire:click="setTab('document')" 
-                class="whitespace-nowrap border-b-2 py-3 px-1 text-xs font-semibold transition {{ $tab === 'document' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 hover:border-zinc-300 dark:text-zinc-400 dark:hover:text-zinc-200' }}">
+                wire:click="setTab('document')"
+                class="whitespace-nowrap border-b-2 py-3 px-1 text-xs font-semibold transition {{ $tab === 'document' ? 'border-emerald-600 text-emerald-600 dark:text-emerald-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 hover:border-zinc-300 dark:text-zinc-400 dark:hover:text-zinc-200' }}">
                 Aktivitas Dokumen (Akses & Unduh)
             </button>
-            <button 
+            <button
                 type="button"
-                wire:click="setTab('system')" 
-                class="whitespace-nowrap border-b-2 py-3 px-1 text-xs font-semibold transition {{ $tab === 'system' ? 'border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 hover:border-zinc-300 dark:text-zinc-400 dark:hover:text-zinc-200' }}">
+                wire:click="setTab('system')"
+                class="whitespace-nowrap border-b-2 py-3 px-1 text-xs font-semibold transition {{ $tab === 'system' ? 'border-emerald-600 text-emerald-600 dark:text-emerald-400' : 'border-transparent text-zinc-500 hover:text-zinc-700 hover:border-zinc-300 dark:text-zinc-400 dark:hover:text-zinc-200' }}">
                 Aktivitas Sistem (Perubahan Data CRUD)
             </button>
         </nav>
